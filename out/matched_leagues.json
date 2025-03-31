@@ -1,0 +1,242 @@
+[
+  {
+    "betsapi_league": "England Championship",
+    "ps3838_league": "England - Championship",
+    "ps3838_id": 1977
+  },
+  {
+    "betsapi_league": "England Premier League",
+    "ps3838_league": "England - Premier League",
+    "ps3838_id": 1980
+  },
+  {
+    "betsapi_league": "France Ligue 1",
+    "ps3838_league": "France - Ligue 1",
+    "ps3838_id": 2036
+  },
+  {
+    "betsapi_league": "France Ligue 2",
+    "ps3838_league": "France - Ligue 2",
+    "ps3838_id": 2037
+  },
+  {
+    "betsapi_league": "Italy Serie A",
+    "ps3838_league": "Italy - Serie A",
+    "ps3838_id": 2436
+  },
+  {
+    "betsapi_league": "Italy Serie B",
+    "ps3838_league": "Italy - Serie B",
+    "ps3838_id": 2438
+  },
+  {
+    "betsapi_league": "Germany Bundesliga I",
+    "ps3838_league": "Germany - Bundesliga",
+    "ps3838_id": 1842
+  },
+  {
+    "betsapi_league": "Germany Bundesliga II",
+    "ps3838_league": "Germany - Bundesliga 2",
+    "ps3838_id": 1843
+  },
+  {
+    "betsapi_league": "Spain La Liga",
+    "ps3838_league": "Spain - La Liga",
+    "ps3838_id": 2196
+  },
+  {
+    "betsapi_league": "Spain Segunda",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Türkiye Super Lig",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Portugal Primeira Liga",
+    "ps3838_league": "Portugal - Primeira Liga",
+    "ps3838_id": 2386
+  },
+  {
+    "betsapi_league": "Belgium First Division A",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Russia Premier League",
+    "ps3838_league": "Russia - Premier League",
+    "ps3838_id": 2406
+  },
+  {
+    "betsapi_league": "Netherlands Eredivisie",
+    "ps3838_league": "Netherlands - Eredivisie",
+    "ps3838_id": 1928
+  },
+  {
+    "betsapi_league": "Switzerland Super League",
+    "ps3838_league": "Switzerland - Super League",
+    "ps3838_id": 2517
+  },
+  {
+    "betsapi_league": "Greece Super League 1",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Austria Bundesliga",
+    "ps3838_league": "Austria - Bundesliga",
+    "ps3838_id": 1792
+  },
+  {
+    "betsapi_league": "Ukraine Vyscha Liga",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Czechia First League",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Denmark Superligaen",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Scotland Premiership",
+    "ps3838_league": "Scotland - Premiership",
+    "ps3838_id": 2421
+  },
+  {
+    "betsapi_league": "Poland Ekstraklasa",
+    "ps3838_league": "Poland - Ekstraklasa",
+    "ps3838_id": 2374
+  },
+  {
+    "betsapi_league": "Norway Eliteserien",
+    "ps3838_league": "Norway - Eliteserien",
+    "ps3838_id": 2333
+  },
+  {
+    "betsapi_league": "Croatia HNL",
+    "ps3838_league": "Croatia - HNL",
+    "ps3838_id": 1880
+  },
+  {
+    "betsapi_league": "Serbia Super Liga",
+    "ps3838_league": "Serbia - Super Liga",
+    "ps3838_id": 2434
+  },
+  {
+    "betsapi_league": "Sweden Allsvenskan",
+    "ps3838_league": "Sweden - Allsvenskan",
+    "ps3838_id": 1728
+  },
+  {
+    "betsapi_league": "Romania Liga I",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Bulgaria First League",
+    "ps3838_league": "Bulgaria - First League",
+    "ps3838_id": 9320
+  },
+  {
+    "betsapi_league": "Hungary NB I",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Slovakia Super Liga",
+    "ps3838_league": "Slovakia - Super Liga",
+    "ps3838_id": 2453
+  },
+  {
+    "betsapi_league": "Slovenia Prva Liga",
+    "ps3838_league": "Slovenia - Prva Liga",
+    "ps3838_id": 2457
+  },
+  {
+    "betsapi_league": "Indonesia Liga 1",
+    "ps3838_league": "Indonesia - Liga 1",
+    "ps3838_id": 199211
+  },
+  {
+    "betsapi_league": "South Korea K League 2",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Japan J1-League",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Japan J2-League",
+    "ps3838_league": "Japan - J2 League",
+    "ps3838_id": 2159
+  },
+  {
+    "betsapi_league": "Malaysia Super League",
+    "ps3838_league": "Malaysia - Super League",
+    "ps3838_id": 2234
+  },
+  {
+    "betsapi_league": "South Korea K League 1",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "USA MLS",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "Mexico Liga MX",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "UEFA Conference League",
+    "ps3838_league": "UEFA - Conference League",
+    "ps3838_id": 214101
+  },
+  {
+    "betsapi_league": "UEFA Champions League",
+    "ps3838_league": "UEFA - Champions League",
+    "ps3838_id": 2627
+  },
+  {
+    "betsapi_league": "UEFA Europa League",
+    "ps3838_league": "UEFA - Europa League",
+    "ps3838_id": 2630
+  },
+  {
+    "betsapi_league": "UEFA Nations League",
+    "ps3838_league": null,
+    "ps3838_id": null
+  },
+  {
+    "betsapi_league": "UEFA Nations League A",
+    "ps3838_league": "UEFA - Nations League A",
+    "ps3838_id": 200719
+  },
+  {
+    "betsapi_league": "UEFA Nations League D",
+    "ps3838_league": "UEFA - Nations League D",
+    "ps3838_id": 200727
+  },
+  {
+    "betsapi_league": "UEFA Nations League C",
+    "ps3838_league": "UEFA - Nations League C",
+    "ps3838_id": 200726
+  },
+  {
+    "betsapi_league": "UEFA Nations League B",
+    "ps3838_league": "UEFA - Nations League B",
+    "ps3838_id": 200721
+  }
+]
