@@ -17,3 +17,9 @@ This project aims to keep all method names and behavior as close as possible to 
 
 - A small utility module that enables you to fetch odds by just providing the league name, home team, and away team.
 - Probably not useful for everyone — this was built for a specific use case, but it might come in handy.
+
+## Local installation
+
+```bash
+pip install -e . -r dev-requirements.txt
+```
