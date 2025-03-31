@@ -1,5 +1,6 @@
+build
+setuptools[core]
 flake8
 requests
 pytest
 ipykernel
-dotenv

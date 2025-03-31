@@ -2,11 +2,11 @@ from dataclasses import dataclass, field
 import json
 from typing import Final
 
-import bets_ps3838 as ps
+import ps3838api.api as ps
 
-from models.fixtures import FixturesLeagueV3, FixturesResponse
-from models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
-from models.event import (
+from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
+from ps3838api.models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
+from ps3838api.models.event import (
     Failure,
     MatchedLeague,
     NoResult,

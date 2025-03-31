@@ -19,8 +19,8 @@ import requests
 from typing import TypedDict, Any, NotRequired
 from typing import cast
 
-from models.fixtures import FixturesResponse
-from models.odds import OddsResponse
+from ps3838api.models.fixtures import FixturesResponse
+from ps3838api.models.odds import OddsResponse
 
 ###############################################################################
 # Environment Variables & Authorization
