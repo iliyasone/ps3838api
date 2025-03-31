@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import json
 from typing import Final
 
+from ps3838api import ROOT_DIR
 import ps3838api.api as ps
 
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
@@ -139,7 +140,7 @@ class EventMatcher:
         return filter_odds(self.odds.data, event_id)
 
 
-with open("out/matched_leagues.json") as file:
+with open(ROOT_DIR / "out/matched_leagues.json") as file:
     MATCHED_LEAGUES: Final[list[MatchedLeague]] = json.load(file)
 
 
