@@ -7,6 +7,7 @@
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
+      "justMyCode": false,
       "cwd": "${workspaceFolder}" // sets working directory to the root of your project
     }
   ]
