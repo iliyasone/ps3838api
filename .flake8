@@ -1,0 +1,7 @@
+[flake8]
+max-complexity = 10
+max-line-length = 160
+exclude =
+    main.py
+    match_leagues.py
+    .venv

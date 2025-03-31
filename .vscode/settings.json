@@ -1,0 +1,5 @@
+{
+  "python.analysis.typeCheckingMode": "strict",
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "python.envFile": "${workspaceFolder}/.env"
+}

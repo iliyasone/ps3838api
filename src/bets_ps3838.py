@@ -19,6 +19,8 @@ import requests
 from typing import TypedDict, Any, NotRequired
 from typing import cast
 
+from models.fixtures import FixturesResponse
+from models.odds import OddsResponse
 
 ###############################################################################
 # Environment Variables & Authorization
@@ -267,7 +269,7 @@ def get_fixtures(
     since: int | None = None,
     event_ids: list[int] | None = None,
     settled: bool = False,
-) -> Any:
+) -> FixturesResponse:
     """
     GET https://api.ps3838.com/v3/fixtures  or  /v3/fixtures/settled
     Query parameters:
@@ -287,7 +289,7 @@ def get_fixtures(
     if event_ids:
         params["eventIds"] = ",".join(map(str, event_ids))
 
-    return _get(endpoint, params)
+    return cast(FixturesResponse, _get(endpoint, params))
 
 
 def get_odds(
@@ -298,7 +300,7 @@ def get_odds(
     since: int | None = None,
     is_live: bool | None = None,
     event_ids: list[int] | None = None,
-) -> Any:
+) -> OddsResponse:
     """
     GET Straight Odds (v3) or GET Special Odds (v2) for non-settled events.
     - If is_special=True -> https://api.ps3838.com/v2/odds/special
@@ -323,7 +325,7 @@ def get_odds(
     if event_ids:
         params["eventIds"] = ",".join(map(str, event_ids))
 
-    return _get(endpoint, params)
+    return cast(OddsResponse, _get(endpoint, params))
 
 
 def get_special_fixtures(
