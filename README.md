@@ -2,7 +2,9 @@
 
 ## 🔑 Key Idea
 
-This project aims to keep all method names and behavior as close as possible to the official [PS3838 API documentation](https://ps3838api.github.io/docs/). No abstraction layers that get in your way — just a clean, Pythonic interface to the raw API.
+This project aims to keep all method names and behavior as close as possible to the official [PS3838 API documentation](https://ps3838api.github.io/docs/). No abstraction layers that get in your way — just a clean, Pythonic functional interface to the raw API.
+
+If you need assistence, contant me directly in a Telegram: [@iliyasone](t.me/iliyasone)
 
 ## ✨ Features
 
