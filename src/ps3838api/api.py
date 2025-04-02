@@ -99,7 +99,7 @@ class BetPlacementResponse(TypedDict, total=False):
     # "price": float, "errorMessage": str, etc.
 
 
-class League(TypedDict):
+class LeagueV3(TypedDict):
     id: int
     name: str
     homeTeamType: NotRequired[str]  # Usually "Team1" or "Team2"
@@ -251,7 +251,7 @@ def get_sports() -> Any:
     return _get(endpoint)
 
 
-def get_leagues(sport_id: int) -> list[League]:
+def get_leagues(sport_id: int) -> list[LeagueV3]:
     """
     GET https://api.ps3838.com/v3/leagues?sportId={sport_id}
     Returns leagues for a particular sport. Fields uncertain, so use Any.
@@ -259,7 +259,7 @@ def get_leagues(sport_id: int) -> list[League]:
     endpoint = "/v3/leagues"
     data = _get(endpoint, params={"sportId": sport_id})
     leagues_data = data.get("leagues", [])
-    return cast(list[League], leagues_data)
+    return cast(list[LeagueV3], leagues_data)
 
 
 def get_fixtures(
