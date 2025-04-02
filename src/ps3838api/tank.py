@@ -77,13 +77,13 @@ class FixtureTank:
     - update and "zip" them
     - TODO: remove old ones
     """
+
     def __init__(self, file_path: str | Path = ROOT_DIR / "temp/fixtures.json") -> None:
         try:
             with open(file_path) as file:
                 self.data: FixturesResponse = json.load(file)
         except FileNotFoundError:
             self.data: FixturesResponse = ps.get_fixtures(ps.SOCCER_SPORT_ID)
-
 
     def update(self):
         delta = ps.get_fixtures(ps.SOCCER_SPORT_ID, since=self.data["last"])
@@ -177,34 +177,35 @@ def find_league_by_name(
 
 
 def find_event_bets_ps3838_id(
-    fixtures: FixturesResponse, league_betsapi: str, home: str, away: str
+    fixtures: FixturesResponse, league: str, home: str, away: str
 ) -> int | Failure:
     """returns ps3838 event id like"""
-    match match_league(league_betsapi=league_betsapi):
+    match match_league(league_betsapi=league):
         case {"ps3838_id": int()} as value:
             league_id: int = value["ps3838_id"]  # type: ignore
         case _:
-            return NoSuchLeagueMatching(league_betsapi)
+            return NoSuchLeagueMatching(league)
 
-    for league in fixtures["league"]:
-        if league["id"] == league_id:
+    for leagueV3 in fixtures["league"]:
+        if leagueV3["id"] == league_id:
             break
     else:
-        return NoSuchLeagueFixtures(league_betsapi)
+        return NoSuchLeagueFixtures(league)
 
-    for event in league["events"]:
+    for event in leagueV3["events"]:
         if normalize_to_set(event.get("home", "")) != normalize_to_set(home):
             continue
         if normalize_to_set(event.get("away", "")) != normalize_to_set(away):
             continue
         return event["id"]
 
-    return NoSuchEvent(league_betsapi, home, away)
+    return NoSuchEvent(league, home, away)
 
 
 def filter_odds(
     odds: OddsResponse, event_id: int, league_id: int | None = None
 ) -> OddsEventV3 | NoSuchOddsAvailable:
+    """passing `league_id` makes search in json faster"""
     for league in odds["leagues"]:
         if league_id and league_id != league["id"]:
             continue
