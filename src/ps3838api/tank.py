@@ -79,8 +79,9 @@ class FixtureTank:
     """
 
     def __init__(self, file_path: str | Path = ROOT_DIR / "temp/fixtures.json") -> None:
+        self.file_path = file_path
         try:
-            with open(file_path) as file:
+            with open(self.file_path) as file:
                 self.data: FixturesResponse = json.load(file)
         except FileNotFoundError:
             self.data: FixturesResponse = ps.get_fixtures(ps.SOCCER_SPORT_ID)
@@ -90,21 +91,27 @@ class FixtureTank:
         self.data = merge_fixtures(self.data, delta)
 
     def save(self):
-        with open(ROOT_DIR / "temp/fixtures.json", "w") as file:
+        with open(self.file_path, "w") as file:
             json.dump(self.data, file, indent=4)
 
 
 class OddsTank:
-    def __init__(self) -> None:
-        self.data: OddsResponse = ps.get_odds(ps.SOCCER_SPORT_ID)
+    def __init__(self, file_path: str | Path = ROOT_DIR / "temp/odds.json") -> None:
+        self.file_path = file_path
+        try:
+            with open(file_path) as file:
+                self.data: OddsResponse = json.load(file)
+        except FileNotFoundError:
+            self.data: OddsResponse = ps.get_odds(ps.SOCCER_SPORT_ID)
 
     def update(self):
         delta = ps.get_odds(ps.SOCCER_SPORT_ID, since=self.data["last"])
         self.data = merge_odds_response(self.data, delta)
 
     def save(self):
-        # TODO: Impellement
-        return None
+        with open(self.file_path, "w") as file:
+            json.dump(self.data, file, indent=4)
+
 
 
 @dataclass
@@ -142,6 +149,7 @@ class EventMatcher:
                 return f
         print("updating odds")
         self.odds.update()
+        self.save()
         return filter_odds(self.odds.data, event_id)
 
 
