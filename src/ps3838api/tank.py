@@ -150,8 +150,10 @@ with open(ROOT_DIR / "out/matched_leagues.json") as file:
 
 
 def match_league(
-    leagues_mapping: list[MatchedLeague] = MATCHED_LEAGUES, *, league_betsapi: str
-) -> MatchedLeague | NoSuchLeague:
+    *,
+    league_betsapi: str,
+    leagues_mapping: list[MatchedLeague] = MATCHED_LEAGUES,
+) -> MatchedLeague | NoSuchLeagueMatching:
     for league in leagues_mapping:
         if league["betsapi_league"] == league_betsapi:
             if league["ps3838_id"]:
