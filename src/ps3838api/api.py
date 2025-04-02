@@ -16,7 +16,7 @@ import os
 import base64
 import requests
 
-from typing import TypedDict, Any, NotRequired
+from typing import Literal, TypedDict, Any, NotRequired
 from typing import cast
 
 from ps3838api.models.errors import AccessBlockedError, PS3838APIError
@@ -431,3 +431,25 @@ def get_bets(bet_ids: list[int] | None = None, since: int | None = None) -> Any:
         params["since"] = since
 
     return _get(endpoint, params)
+
+
+class BettingStatusResponse(TypedDict):
+    status: Literal["ALL_BETTING_ENABLED", "ALL_LIVE_BETTING_CLOSED", "ALL_BETTING_CLOSED"]
+
+
+def get_betting_status() -> BettingStatusResponse:
+    """
+    GET https://api.ps3838.com/v1/bets/betting-status
+    
+    Returns:
+        BettingStatusResponse: A dict containing the current betting status.
+        The 'status' field can be one of:
+            - "ALL_BETTING_ENABLED"
+            - "ALL_LIVE_BETTING_CLOSED"
+            - "ALL_BETTING_CLOSED"
+    
+    Note:
+        During maintenance windows, betting might be disabled.
+    """
+    endpoint: str = "/v1/bets/betting-status"
+    return cast(BettingStatusResponse, _get(endpoint, {}))
