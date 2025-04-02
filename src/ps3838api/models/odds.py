@@ -28,7 +28,7 @@ class OddsEventV3(TypedDict, total=False):
     homeScore: float
     awayRedCards: int
     homeRedCards: int
-    periods: Required[list[OddsPeriodV3]]
+    periods: list[OddsPeriodV3]
 
 
 # ─────────────────────────────────────────

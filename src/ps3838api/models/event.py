@@ -47,4 +47,4 @@ type Failure = NoSuchLeague | NoSuchEvent
 class NoSuchOddsAvailable:
     event_id: int
 
-type NoResult = Failure | NoSuchOddsAvailable
+type NoResult = NoSuchLeague | NoSuchEvent | NoSuchOddsAvailable
