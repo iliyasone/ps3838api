@@ -19,6 +19,7 @@ import requests
 from typing import TypedDict, Any, NotRequired
 from typing import cast
 
+from ps3838api.models.errors import AccessBlockedError, PS3838APIError
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.odds import OddsResponse
 
@@ -189,10 +190,20 @@ def _get(endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     url: str = f"{_BASE_URL}{endpoint}"
     response = requests.get(url, headers=_HEADERS, params=params or {})
-    response.raise_for_status()
-    return response.json()
+    
+    try:
+        response.raise_for_status()
+        result = response.json()
+    except (requests.exceptions.JSONDecodeError, requests.exceptions.HTTPError):
+        raise AccessBlockedError()
 
-
+    
+    match result:
+        case {"code": str(code), "message": str(message)}:
+            raise PS3838APIError(code=code, message=message)
+        case _:
+            pass
+    return result
 ###############################################################################
 # Helper to make POST requests (for placing bets, etc.)
 ###############################################################################
