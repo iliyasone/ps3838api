@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ps3838api import ROOT_DIR
 
 def normalize_to_set(name: str) -> set[str]:
     return set(
@@ -17,9 +18,9 @@ def load_json(path: str | Path) -> list[Any] | dict[str, Any]:
 
 def main():
     # Paths
-    betsapi_path = Path("out/betsapi_leagues.json")
-    ps3838_path = Path("out/ps3838_leagues.json")
-    output_path = Path("out/matched_leagues.json")
+    betsapi_path = ROOT_DIR / Path("out/betsapi_leagues.json")
+    ps3838_path = ROOT_DIR / Path("out/ps3838_leagues.json")
+    output_path = ROOT_DIR / Path("out/matched_leagues.json")
 
     # Load files
     betsapi_leagues = load_json(betsapi_path)
