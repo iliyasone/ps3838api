@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import json
+from pathlib import Path
 from typing import Final
 
 from ps3838api import ROOT_DIR
@@ -76,17 +77,21 @@ class FixtureTank:
     - update and "zip" them
     - TODO: remove old ones
     """
+    def __init__(self, file_path: str | Path = ROOT_DIR / "temp/fixtures.json") -> None:
+        try:
+            with open(file_path) as file:
+                self.data: FixturesResponse = json.load(file)
+        except FileNotFoundError:
+            self.data: FixturesResponse = ps.get_fixtures(ps.SOCCER_SPORT_ID)
 
-    def __init__(self) -> None:
-        self.data: FixturesResponse = ps.get_fixtures(ps.SOCCER_SPORT_ID)
 
     def update(self):
         delta = ps.get_fixtures(ps.SOCCER_SPORT_ID, since=self.data["last"])
         self.data = merge_fixtures(self.data, delta)
 
     def save(self):
-        # TODO: Impelemnt
-        return None
+        with open(ROOT_DIR / "temp/fixtures.json", "w") as file:
+            json.dump(self.data, file, indent=4)
 
 
 class OddsTank:
