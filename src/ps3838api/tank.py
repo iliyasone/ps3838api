@@ -180,11 +180,16 @@ def find_event_bets_ps3838_id(
     fixtures: FixturesResponse, league: str, home: str, away: str
 ) -> int | Failure:
     """returns ps3838 event id like"""
-    match match_league(league_betsapi=league):
-        case {"ps3838_id": int()} as value:
-            league_id: int = value["ps3838_id"]  # type: ignore
-        case _:
-            return NoSuchLeagueMatching(league)
+
+    leagueV3 = find_league_by_name(league)
+    if isinstance(leagueV3, NoSuchLeague):
+        match match_league(league_betsapi=league):
+            case {"ps3838_id": int()} as value:
+                league_id: int = value["ps3838_id"]  # type: ignore
+            case _:
+                return NoSuchLeagueMatching(league)
+    else:
+        league_id = leagueV3["id"]
 
     for leagueV3 in fixtures["league"]:
         if leagueV3["id"] == league_id:
