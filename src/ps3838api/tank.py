@@ -161,6 +161,16 @@ def match_league(
     return NoSuchLeagueMatching(league_betsapi)
 
 
+def find_league_by_name(
+    league: str, leagues: list[ps.LeagueV3] = ALL_LEAGUES
+) -> ps.LeagueV3 | NoSuchLeague:
+    normalized = normalize_to_set(league)
+    for leagueV3 in leagues:
+        if normalize_to_set(leagueV3["name"]) == normalized:
+            return leagueV3
+    return NoSuchLeagueMatching(league)
+
+
 def find_event_bets_ps3838_id(
     fixtures: FixturesResponse, league_betsapi: str, home: str, away: str
 ) -> int | Failure:
