@@ -18,6 +18,8 @@ import requests
 
 from typing import Literal, TypedDict, Any, NotRequired
 from typing import cast
+from typing import Callable, ParamSpec, TypeVar
+from functools import wraps
 
 from ps3838api.models.errors import AccessBlockedError, PS3838APIError
 from ps3838api.models.fixtures import FixturesResponse
@@ -179,45 +181,63 @@ _SPORTS: dict[int, str] = {
 }
 
 SOCCER_SPORT_ID = 29
+BASEBALL_SPORT_ID = 3
+
+
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+def raise_ps3838_api_errors(func: Callable[P, requests.Response]) -> Callable[P, dict[str, Any]]:
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> dict[str, Any]:
+        response = func(*args, **kwargs)
+
+        try:
+            response.raise_for_status()
+            result = response.json()
+        except requests.exceptions.HTTPError as e:
+            if e.response and e.response.status_code == 405:
+                raise WrongEndpoint()
+            raise AccessBlockedError(e.response.status_code if e.response else "Unknown")
+        except requests.exceptions.JSONDecodeError:
+            raise AccessBlockedError("Empty response")
+
+        match result:
+            case {"code": str(code), "message": str(message)}:
+                raise PS3838APIError(code=code, message=message)
+            case _:
+                return result
+
+    return wrapper
 
 
 ###############################################################################
 # Helper to make GET requests
 ###############################################################################
-def _get(endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+@raise_ps3838_api_errors
+def _get(endpoint: str, params: dict[str, Any] | None = None):
     """
     Internal helper to perform GET requests to the PS3838 API.
     Returns JSON-decoded response as Any. Raise errors on non-200.
     """
     url: str = f"{_BASE_URL}{endpoint}"
     response = requests.get(url, headers=_HEADERS, params=params or {})
-
-    try:
-        response.raise_for_status()
-        result = response.json()
-    except (requests.exceptions.JSONDecodeError, requests.exceptions.HTTPError):
-        raise AccessBlockedError()
-
-    match result:
-        case {"code": str(code), "message": str(message)}:
-            raise PS3838APIError(code=code, message=message)
-        case _:
-            pass
-    return result
+    return response
 
 
 ###############################################################################
 # Helper to make POST requests (for placing bets, etc.)
 ###############################################################################
-def _post(endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
+@raise_ps3838_api_errors
+def _post(endpoint: str, body: dict[str, Any]):
     """
     Internal helper to perform POST requests to the PS3838 API.
     Returns JSON-decoded response as Any. Raise errors on non-200.
     """
     url: str = f"{_BASE_URL}{endpoint}"
     response = requests.post(url, headers=_HEADERS, json=body)
-    response.raise_for_status()
-    return response.json()
+    return response
 
 
 ###############################################################################
