@@ -14,17 +14,20 @@ Python Version: 3.12.8 (Strict type hints)
 
 import os
 import base64
+import uuid
 import requests
+
 
 from typing import Literal, TypedDict, Any, NotRequired
 from typing import cast
 from typing import Callable, ParamSpec, TypeVar
 from functools import wraps
 
-from ps3838api.models.errors import AccessBlockedError, PS3838APIError
+from ps3838api.models.errors import AccessBlockedError, BaseballOnlyArgumentError, PS3838APIError, WrongEndpoint
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
+from ps3838api.models.bets import PlaceStraightBetResponse
 
 ###############################################################################
 # Environment Variables & Authorization
@@ -80,27 +83,6 @@ class PeriodData(TypedDict, total=False):
     totalShortDescription: NotRequired[str]
     team1TotalShortDescription: NotRequired[str]
     team2TotalShortDescription: NotRequired[str]
-
-
-class BetPlacementRequest(TypedDict, total=False):
-    uniqueRequestId: NotRequired[str]
-    sportId: int
-    eventId: int
-    periodNumber: int
-    betType: str  # e.g. "TOTAL_POINTS", "MONEYLINE", ...
-    team: NotRequired[str]  # e.g. "Team1", "Team2", "Draw"
-    side: NotRequired[str]  # e.g. "OVER", "UNDER"
-    handicap: NotRequired[float]
-    oddsFormat: NotRequired[str]  # "Decimal", "American", ...
-    stake: float
-    acceptBetterLine: NotRequired[bool]
-
-
-class BetPlacementResponse(TypedDict, total=False):
-    status: NotRequired[str]
-    betId: NotRequired[int]
-    # Additional fields if needed:
-    # "price": float, "errorMessage": str, etc.
 
 
 class LeagueV3(TypedDict):
@@ -416,28 +398,89 @@ def get_line(
     return cast(LineResponse, _get(endpoint, params))
 
 
-def place_bet(bet_data: BetPlacementRequest) -> BetPlacementResponse:
-    """
-    POST https://api.ps3838.com/v2/bets
-    Place a straight bet with the specified data.
-    E.g. betData = {
-        "uniqueRequestId": "abc-123",
-        "sportId": 29,
-        "eventId": 1234567890,
-        "periodNumber": 0,
-        "betType": "TOTAL_POINTS",
-        "side": "OVER",
-        "handicap": 2.5,
-        "oddsFormat": "Decimal",
-        "stake": 100.0,
-        "acceptBetterLine": True
-    }
+type OddsFormat = Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
+type BetType = Literal["MONEYLINE", "TEAM_TOTAL_POINTS", "SPREAD", "TOTAL_POINTS"]
+type FillType = Literal["NORMAL", "FILLANDKILL", "FILLMAXLIMIT"]
+"""
+### NORMAL
+bet will be placed on specified stake.  
 
-    Returns the bet placement result in a typed dict (status, betId, etc.).
-    """
-    endpoint = "/v2/bets"
-    data = _post(endpoint, dict(bet_data))
-    return cast(BetPlacementResponse, data)
+### FILLANDKILL
+
+If the stake is over the max limit, bet will be placed on max limit, 
+otherwise it will be placed on specified stake.  
+
+### FILLMAXLIMIT⚠️
+
+bet will be places on max limit⚠️, stake amount will be ignored. 
+Please note that maximum limits can change at any moment, which may result in 
+risking more than anticipated. This option is replacement of isMaxStakeBet from 
+v1/bets/place'
+"""
+type Team = Literal["TEAM1", "TEAM2", "DRAW"]
+type Side = Literal["OVER", "UNDER"]
+
+# parameters are key only, because all are very important
+def place_straigh_bet(
+    *,
+    stake: float,
+    sport_id: int,
+    event_id: int,
+    period_number: int,
+    bet_type: BetType,
+    line_id: int | None,
+    # ALT LINE ID
+    alt_line_id: int | None = None,
+    # BET UUID 
+    unique_request_id: str | None = None,
+    # BETS PARAMETERS
+    odds_format: OddsFormat = "DECIMAL",
+    fill_type: FillType = "NORMAL",
+    accept_better_line: bool = True,
+    win_risk_stake: Literal["WIN", "RISK"] = "RISK",
+    # BASEBALL ONLY
+    pitcher1_must_start: bool = True,
+    pitcher2_must_start: bool = True,
+    # TEAM 
+    team: Team | None = None,
+    # SIDE (FOR TOTALS)
+    side: Side | None = None,
+    # HANDICAP (OR POINTS)
+    handicap: float | None = None,
+) -> PlaceStraightBetResponse:
+    if unique_request_id is None:
+        unique_request_id = str(uuid.uuid1())
+    if sport_id != BASEBALL_SPORT_ID:
+        if not pitcher1_must_start or not pitcher2_must_start:
+            raise BaseballOnlyArgumentError()
+    params: dict[str, Any] = {
+        "oddsFormat": odds_format,
+        "uniqueRequestId": unique_request_id,
+        "acceptBetterLine": accept_better_line,
+        "stake": stake,
+        "winRiskStake": win_risk_stake,
+        "pitcher1MustStart": pitcher1_must_start,
+        "pitcher2MustStart": pitcher2_must_start,
+        "fillType": fill_type,
+        "sportId": sport_id,
+        "eventId": event_id,
+        "periodNumber": period_number,
+        "betType": bet_type,
+    }
+    if team is not None:
+        params["team"] = team
+    if line_id is not None:
+        params["lineId"] = line_id
+    if alt_line_id is not None:
+        params["altLineId"] = alt_line_id
+    if side is not None:
+        params["side"] = side
+    if handicap is not None:
+        params["handicap"] = handicap
+
+    endpoint = "/v2/bets/place"
+    data = _post(endpoint, params)
+    return cast(PlaceStraightBetResponse, data)
 
 
 def get_bets(bet_ids: list[int] | None = None, since: int | None = None) -> Any:
@@ -458,20 +501,22 @@ def get_bets(bet_ids: list[int] | None = None, since: int | None = None) -> Any:
 
 
 class BettingStatusResponse(TypedDict):
-    status: Literal["ALL_BETTING_ENABLED", "ALL_LIVE_BETTING_CLOSED", "ALL_BETTING_CLOSED"]
+    status: Literal[
+        "ALL_BETTING_ENABLED", "ALL_LIVE_BETTING_CLOSED", "ALL_BETTING_CLOSED"
+    ]
 
 
 def get_betting_status() -> BettingStatusResponse:
     """
     GET https://api.ps3838.com/v1/bets/betting-status
-    
+
     Returns:
         BettingStatusResponse: A dict containing the current betting status.
         The 'status' field can be one of:
             - "ALL_BETTING_ENABLED"
             - "ALL_LIVE_BETTING_CLOSED"
             - "ALL_BETTING_CLOSED"
-    
+
     Note:
         During maintenance windows, betting might be disabled.
     """
