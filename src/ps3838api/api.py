@@ -23,7 +23,12 @@ from typing import cast
 from typing import Callable, ParamSpec, TypeVar
 from functools import wraps
 
-from ps3838api.models.errors import AccessBlockedError, BaseballOnlyArgumentError, PS3838APIError, WrongEndpoint
+from ps3838api.models.errors import (
+    AccessBlockedError,
+    BaseballOnlyArgumentError,
+    PS3838APIError,
+    WrongEndpoint,
+)
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
@@ -166,11 +171,13 @@ SOCCER_SPORT_ID = 29
 BASEBALL_SPORT_ID = 3
 
 
-
 P = ParamSpec("P")
 R = TypeVar("R")
 
-def raise_ps3838_api_errors(func: Callable[P, requests.Response]) -> Callable[P, dict[str, Any]]:
+
+def raise_ps3838_api_errors(
+    func: Callable[P, requests.Response],
+) -> Callable[P, dict[str, Any]]:
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> dict[str, Any]:
         response = func(*args, **kwargs)
@@ -181,7 +188,9 @@ def raise_ps3838_api_errors(func: Callable[P, requests.Response]) -> Callable[P,
         except requests.exceptions.HTTPError as e:
             if e.response and e.response.status_code == 405:
                 raise WrongEndpoint()
-            raise AccessBlockedError(e.response.status_code if e.response else "Unknown")
+            raise AccessBlockedError(
+                e.response.status_code if e.response else "Unknown"
+            )
         except requests.exceptions.JSONDecodeError:
             raise AccessBlockedError("Empty response")
 
@@ -244,7 +253,7 @@ def get_client_balance() -> BalanceData:
     return cast(BalanceData, data)
 
 
-def get_periods(sport_id: int) -> list[PeriodData]:
+def get_periods(sport_id: int = SOCCER_SPORT_ID) -> list[PeriodData]:
     """
     Returns all periods for a given sport.
     GET https://api.ps3838.com/v1/periods?sportId={sport_id}
@@ -266,7 +275,7 @@ def get_sports() -> Any:
     return _get(endpoint)
 
 
-def get_leagues(sport_id: int) -> list[LeagueV3]:
+def get_leagues(sport_id: int = SOCCER_SPORT_ID) -> list[LeagueV3]:
     """
     GET https://api.ps3838.com/v3/leagues?sportId={sport_id}
     Returns leagues for a particular sport. Fields uncertain, so use Any.
@@ -278,7 +287,7 @@ def get_leagues(sport_id: int) -> list[LeagueV3]:
 
 
 def get_fixtures(
-    sport_id: int,
+    sport_id: int = SOCCER_SPORT_ID,
     league_ids: list[int] | None = None,
     is_live: bool | None = None,
     since: int | None = None,
@@ -308,7 +317,7 @@ def get_fixtures(
 
 
 def get_odds(
-    sport_id: int,
+    sport_id: int = SOCCER_SPORT_ID,
     is_special: bool = False,
     league_ids: list[int] | None = None,
     odds_format: str = "Decimal",
@@ -344,7 +353,9 @@ def get_odds(
 
 
 def get_special_fixtures(
-    sport_id: int, league_ids: list[int] | None = None, event_id: int | None = None
+    sport_id: int = SOCCER_SPORT_ID,
+    league_ids: list[int] | None = None,
+    event_id: int | None = None,
 ) -> Any:
     """
     GET https://api.ps3838.com/v2/fixtures/special
@@ -363,7 +374,6 @@ def get_special_fixtures(
 
 
 def get_line(
-    sport_id: int,
     league_id: int,
     event_id: int,
     period_number: int,
@@ -371,6 +381,7 @@ def get_line(
     handicap: float,
     team: Literal["Team1", "Team2", "Draw"] | None = None,
     side: Literal["OVER", "UNDER"] | None = None,
+    sport_id: int = SOCCER_SPORT_ID,
     odds_format: str = "Decimal",
 ) -> LineResponse:
     """
@@ -420,18 +431,20 @@ v1/bets/place'
 type Team = Literal["TEAM1", "TEAM2", "DRAW"]
 type Side = Literal["OVER", "UNDER"]
 
+
 # parameters are key only, because all are very important
 def place_straigh_bet(
     *,
     stake: float,
-    sport_id: int,
     event_id: int,
-    period_number: int,
     bet_type: BetType,
     line_id: int | None,
+    # EVENT INFO (JUST GUESSING)
+    period_number: int = 0,
+    sport_id: int = SOCCER_SPORT_ID,
     # ALT LINE ID
     alt_line_id: int | None = None,
-    # BET UUID 
+    # BET UUID
     unique_request_id: str | None = None,
     # BETS PARAMETERS
     odds_format: OddsFormat = "DECIMAL",
@@ -441,7 +454,7 @@ def place_straigh_bet(
     # BASEBALL ONLY
     pitcher1_must_start: bool = True,
     pitcher2_must_start: bool = True,
-    # TEAM 
+    # TEAM
     team: Team | None = None,
     # SIDE (FOR TOTALS)
     side: Side | None = None,

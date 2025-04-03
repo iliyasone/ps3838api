@@ -31,3 +31,12 @@ class WrongEndpoint(ResponseError):
 class PS3838APIError(ResponseError):
     code: str | None
     message: str | None
+
+
+class LogicError(BasePS3838Error):
+    """Raised when there is a violation of client-side logic or input invariant."""
+    pass
+
+
+class BaseballOnlyArgumentError(LogicError):
+    pass
