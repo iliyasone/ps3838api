@@ -21,6 +21,7 @@ from typing import cast
 
 from ps3838api.models.errors import AccessBlockedError, PS3838APIError
 from ps3838api.models.fixtures import FixturesResponse
+from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
 
 ###############################################################################
@@ -190,20 +191,21 @@ def _get(endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     url: str = f"{_BASE_URL}{endpoint}"
     response = requests.get(url, headers=_HEADERS, params=params or {})
-    
+
     try:
         response.raise_for_status()
         result = response.json()
     except (requests.exceptions.JSONDecodeError, requests.exceptions.HTTPError):
         raise AccessBlockedError()
 
-    
     match result:
         case {"code": str(code), "message": str(message)}:
             raise PS3838APIError(code=code, message=message)
         case _:
             pass
     return result
+
+
 ###############################################################################
 # Helper to make POST requests (for placing bets, etc.)
 ###############################################################################
@@ -363,16 +365,18 @@ def get_line(
     league_id: int,
     event_id: int,
     period_number: int,
-    bet_type: str,
+    bet_type: Literal["SPREAD", "MONEYLINE", "TOTAL_POINTS", "TEAM_TOTAL_POINTS"],
     handicap: float,
-    team: str | None = None,
-    side: str | None = None,
+    team: Literal["Team1", "Team2", "Draw"] | None = None,
+    side: Literal["OVER", "UNDER"] | None = None,
     odds_format: str = "Decimal",
-) -> Any:
+) -> LineResponse:
     """
     GET https://api.ps3838.com/v2/line
     or known in docs as "Get Straight Line (v2)".
     Use this to get the exact line, odds, and limit for a single bet (Spread, Total, etc.)
+
+    side is required for TOTAL_POINTS and TEAM_TOTAL_POINTS
     """
     endpoint = "/v2/line"
     params: dict[str, Any] = {
@@ -389,7 +393,7 @@ def get_line(
     if side:
         params["side"] = side
 
-    return _get(endpoint, params)
+    return cast(LineResponse, _get(endpoint, params))
 
 
 def place_bet(bet_data: BetPlacementRequest) -> BetPlacementResponse:
