@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
-from typing import Final
+from typing import Final, TypedDict
 
 from ps3838api import ROOT_DIR
 import ps3838api.api as ps
@@ -113,6 +113,10 @@ class OddsTank:
             json.dump(self.data, file, indent=4)
 
 
+class EventInfo(TypedDict):
+    leagueId: int
+    eventId: int
+
 
 @dataclass
 class EventMatcher:
@@ -129,28 +133,25 @@ class EventMatcher:
         self.fixtures.save()
         self.odds.save()
 
-    def _get_ps3838_event_id(self, league: str, home: str, away: str) -> int | Failure:
-        match find_event_bets_ps3838_id(self.fixtures.data, league, home, away):
-            case int() as event:
-                print("event founded")
-                return event
+    def get_league_id_and_event_id(
+        self, league: str, home: str, away: str
+    ) -> EventInfo | Failure:
+        match _find_event_bets_ps3838_id(self.fixtures.data, league, home, away):
             case NoSuchLeague() as f:
                 return f
             case NoSuchEvent():
                 print("updating fixtures...")
                 self.fixtures.update()
-                return find_event_bets_ps3838_id(self.fixtures.data, league, home, away)
+                return _find_event_bets_ps3838_id(
+                    self.fixtures.data, league, home, away
+                )
+            case event:
+                return event
 
-    def get_odds(self, league: str, home: str, away: str) -> OddsEventV3 | NoResult:
-        match self._get_ps3838_event_id(league, home, away):
-            case int() as event_id:
-                event_id = event_id
-            case f:
-                return f
-        print("updating odds")
+    def get_odds(self, event: EventInfo) -> OddsEventV3 | NoResult:
         self.odds.update()
         self.save()
-        return filter_odds(self.odds.data, event_id)
+        return filter_odds(self.odds.data, event["eventId"])
 
 
 with open(ROOT_DIR / "out/matched_leagues.json") as file:
@@ -184,9 +185,9 @@ def find_league_by_name(
     return NoSuchLeagueMatching(league)
 
 
-def find_event_bets_ps3838_id(
+def _find_event_bets_ps3838_id(
     fixtures: FixturesResponse, league: str, home: str, away: str
-) -> int | Failure:
+) -> EventInfo | Failure:
     """returns ps3838 event id like"""
 
     leagueV3 = find_league_by_name(league)
@@ -210,7 +211,7 @@ def find_event_bets_ps3838_id(
             continue
         if normalize_to_set(event.get("away", "")) != normalize_to_set(away):
             continue
-        return event["id"]
+        return {"eventId": event["id"], "leagueId": league_id}
 
     return NoSuchEvent(league, home, away)
 
