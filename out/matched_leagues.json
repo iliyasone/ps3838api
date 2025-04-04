@@ -46,13 +46,13 @@
   },
   {
     "betsapi_league": "Spain Segunda",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Spain - Segunda Division",
+    "ps3838_id": 2432
   },
   {
     "betsapi_league": "Türkiye Super Lig",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Turkey - Super League",
+    "ps3838_id": 2592
   },
   {
     "betsapi_league": "Portugal Primeira Liga",
@@ -61,8 +61,8 @@
   },
   {
     "betsapi_league": "Belgium First Division A",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Belgium - Pro League",
+    "ps3838_id": 1817
   },
   {
     "betsapi_league": "Russia Premier League",
@@ -81,8 +81,8 @@
   },
   {
     "betsapi_league": "Greece Super League 1",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Greece - Super League",
+    "ps3838_id": 2081
   },
   {
     "betsapi_league": "Austria Bundesliga",
@@ -91,18 +91,18 @@
   },
   {
     "betsapi_league": "Ukraine Vyscha Liga",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Ukraine - Premier League",
+    "ps3838_id": 2650
   },
   {
     "betsapi_league": "Czechia First League",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Czech Republic - Czech Liga",
+    "ps3838_id": 1891
   },
   {
     "betsapi_league": "Denmark Superligaen",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Denmark - Superliga",
+    "ps3838_id": 1913
   },
   {
     "betsapi_league": "Scotland Premiership",
@@ -136,8 +136,8 @@
   },
   {
     "betsapi_league": "Romania Liga I",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Romania - Liga 1",
+    "ps3838_id": 2395
   },
   {
     "betsapi_league": "Bulgaria First League",
@@ -146,8 +146,8 @@
   },
   {
     "betsapi_league": "Hungary NB I",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Hungary - NB 1",
+    "ps3838_id": 2095
   },
   {
     "betsapi_league": "Slovakia Super Liga",
@@ -166,13 +166,13 @@
   },
   {
     "betsapi_league": "South Korea K League 2",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Korea Republic - K League 1",
+    "ps3838_id": 207551
   },
   {
     "betsapi_league": "Japan J1-League",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Japan - J League",
+    "ps3838_id": 2157
   },
   {
     "betsapi_league": "Japan J2-League",
@@ -186,18 +186,18 @@
   },
   {
     "betsapi_league": "South Korea K League 1",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Korea Republic - K League 2",
+    "ps3838_id": 207552
   },
   {
     "betsapi_league": "USA MLS",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "USA - Major League Soccer",
+    "ps3838_id": 2663
   },
   {
     "betsapi_league": "Mexico Liga MX",
-    "ps3838_league": null,
-    "ps3838_id": null
+    "ps3838_league": "Mexico - Primera Division",
+    "ps3838_id": 2242
   },
   {
     "betsapi_league": "UEFA Conference League",
@@ -213,11 +213,6 @@
     "betsapi_league": "UEFA Europa League",
     "ps3838_league": "UEFA - Europa League",
     "ps3838_id": 2630
-  },
-  {
-    "betsapi_league": "UEFA Nations League",
-    "ps3838_league": null,
-    "ps3838_id": null
   },
   {
     "betsapi_league": "UEFA Nations League A",
@@ -238,5 +233,10 @@
     "betsapi_league": "UEFA Nations League B",
     "ps3838_league": "UEFA - Nations League B",
     "ps3838_id": 200721
+  },
+  {
+    "betsapi_league": "Europe - World Cup Qualifying",
+    "ps3838_league": "FIFA - World Cup Qualifiers Europe",
+    "ps3838_id": 2015
   }
 ]
