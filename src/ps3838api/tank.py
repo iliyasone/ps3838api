@@ -19,6 +19,17 @@ from ps3838api.models.event import (
     NoSuchOddsAvailable,
 )
 
+from rapidfuzz import fuzz
+
+
+# Your threshold-based fuzzy function
+def is_teams_match(team1: str, team2: str, threshold: int = 80) -> bool:
+    """
+    Returns True if leagues are a fuzzy match with a token sort ratio >= threshold.
+    fuzz.token_sort_ratio() returns 0-100, so 80 means 80% similar.
+    """
+    return fuzz.token_set_ratio(team1, team2) >= threshold
+
 
 def merge_fixtures(old: FixturesResponse, new: FixturesResponse) -> FixturesResponse:
     league_index: dict[int, FixturesLeagueV3] = {
@@ -134,12 +145,14 @@ class EventMatcher:
         self.odds.save()
 
     def get_league_id_and_event_id(
-        self, league: str, home: str, away: str
+        self, league: str, home: str, away: str, force_local: bool = False
     ) -> EventInfo | Failure:
         match _find_event_bets_ps3838_id(self.fixtures.data, league, home, away):
             case NoSuchLeague() as f:
                 return f
-            case NoSuchEvent():
+            case NoSuchEvent() as f:
+                if force_local:
+                    return f
                 print("updating fixtures...")
                 self.fixtures.update()
                 return _find_event_bets_ps3838_id(
@@ -207,9 +220,10 @@ def _find_event_bets_ps3838_id(
         return NoSuchLeagueFixtures(league)
 
     for event in leagueV3["events"]:
-        if normalize_to_set(event.get("home", "")) != normalize_to_set(home):
+
+        if not is_teams_match(event.get("home", ""), home):
             continue
-        if normalize_to_set(event.get("away", "")) != normalize_to_set(away):
+        if not is_teams_match(event.get("away", ""), away):
             continue
         return {"eventId": event["id"], "leagueId": league_id}
 
