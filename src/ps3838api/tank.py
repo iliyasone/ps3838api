@@ -6,7 +6,7 @@ from typing import Final, TypedDict
 from ps3838api import ROOT_DIR
 import ps3838api.api as ps
 
-from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
+from ps3838api.models.fixtures import FixtureV3, FixturesLeagueV3, FixturesResponse
 from ps3838api.models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
 from ps3838api.models.event import (
     Failure,
@@ -253,6 +253,14 @@ def find_event_in_league(
     if best_event is None or best_sum_score < 75:
         return NoSuchEvent(league, home, away)
     return {"eventId": best_event["id"], "leagueId": league_data["id"]}
+
+def find_event_by_id(fixtures: FixturesResponse, event: EventInfo) -> FixtureV3 | None:
+    for leagueV3 in fixtures["league"]:
+        if leagueV3['id'] == event['leagueId']:
+            for fixtureV3 in leagueV3['events']:
+                if fixtureV3['id'] == event['eventId']:
+                    return fixtureV3
+    return None
 
 
 def filter_odds(
