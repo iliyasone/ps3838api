@@ -17,18 +17,11 @@ from ps3838api.models.event import (
     NoSuchLeagueFixtures,
     NoSuchLeagueMatching,
     NoSuchOddsAvailable,
+    WrongLeague,
 )
 
 from rapidfuzz import fuzz
 
-
-# Your threshold-based fuzzy function
-def is_teams_match(team1: str, team2: str, threshold: int = 80) -> bool:
-    """
-    Returns True if leagues are a fuzzy match with a token sort ratio >= threshold.
-    fuzz.token_sort_ratio() returns 0-100, so 80 means 80% similar.
-    """
-    return fuzz.token_set_ratio(team1, team2) >= threshold
 
 
 def merge_fixtures(old: FixturesResponse, new: FixturesResponse) -> FixturesResponse:
@@ -109,6 +102,7 @@ class FixtureTank:
 class OddsTank:
     def __init__(self, file_path: str | Path = ROOT_DIR / "temp/odds.json") -> None:
         self.file_path = file_path
+        self.is_live: bool | None = None
         try:
             with open(file_path) as file:
                 self.data: OddsResponse = json.load(file)
@@ -116,7 +110,9 @@ class OddsTank:
             self.data: OddsResponse = ps.get_odds(ps.SOCCER_SPORT_ID)
 
     def update(self):
-        delta = ps.get_odds(ps.SOCCER_SPORT_ID, since=self.data["last"])
+        delta = ps.get_odds(
+            ps.SOCCER_SPORT_ID, is_live=self.is_live, since=self.data["last"]
+        )
         self.data = merge_odds_response(self.data, delta)
 
     def save(self):
@@ -134,12 +130,6 @@ class EventMatcher:
     fixtures: FixtureTank = field(default_factory=FixtureTank)
     odds: OddsTank = field(default_factory=OddsTank)
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
-        self.save()
-
     def save(self):
         self.fixtures.save()
         self.odds.save()
@@ -147,19 +137,22 @@ class EventMatcher:
     def get_league_id_and_event_id(
         self, league: str, home: str, away: str, force_local: bool = False
     ) -> EventInfo | Failure:
-        match _find_event_bets_ps3838_id(self.fixtures.data, league, home, away):
+        match match_league(league_betsapi=league):
             case NoSuchLeague() as f:
                 return f
-            case NoSuchEvent() as f:
-                if force_local:
-                    return f
-                print("updating fixtures...")
-                self.fixtures.update()
-                return _find_event_bets_ps3838_id(
-                    self.fixtures.data, league, home, away
-                )
-            case event:
-                return event
+            case matched_league:
+                league_id = matched_league["ps3838_id"]
+                assert league_id is not None
+        leagueV3 = find_league_in_fixtures(self.fixtures.data, league, league_id)
+        if isinstance(leagueV3, NoSuchLeague):
+            if force_local:
+                return leagueV3
+            print("updating fixtures...")
+            self.fixtures.update()
+            leagueV3 = find_league_in_fixtures(self.fixtures.data, league, league_id)
+            if isinstance(leagueV3, NoSuchLeague):
+                return leagueV3
+        return find_event_in_league(leagueV3, league, home, away)
 
     def get_odds(self, event: EventInfo) -> OddsEventV3 | NoResult:
         self.odds.update()
@@ -178,14 +171,14 @@ def match_league(
     *,
     league_betsapi: str,
     leagues_mapping: list[MatchedLeague] = MATCHED_LEAGUES,
-) -> MatchedLeague | NoSuchLeagueMatching:
+) -> MatchedLeague | NoSuchLeagueMatching | WrongLeague:
     for league in leagues_mapping:
         if league["betsapi_league"] == league_betsapi:
             if league["ps3838_id"]:
                 return league
-            break
-
-    return NoSuchLeagueMatching(league_betsapi)
+            else:
+                return NoSuchLeagueMatching(league_betsapi)
+    return WrongLeague(league_betsapi)
 
 
 def find_league_by_name(
@@ -198,10 +191,23 @@ def find_league_by_name(
     return NoSuchLeagueMatching(league)
 
 
-def _find_event_bets_ps3838_id(
+def find_league_in_fixtures(
+    fixtures: FixturesResponse, league: str, league_id: int
+) -> FixturesLeagueV3 | NoSuchLeagueFixtures:
+    for leagueV3 in fixtures["league"]:
+        if leagueV3["id"] == league_id:
+            return leagueV3
+    else:
+        return NoSuchLeagueFixtures(league)
+
+
+def magic_find_event(
     fixtures: FixturesResponse, league: str, home: str, away: str
 ) -> EventInfo | Failure:
-    """returns ps3838 event id like"""
+    """
+    1. Tries to find league by normalizng names;
+    2. If don't, search for a league matching
+    """
 
     leagueV3 = find_league_by_name(league)
     if isinstance(leagueV3, NoSuchLeague):
@@ -219,15 +225,34 @@ def _find_event_bets_ps3838_id(
     else:
         return NoSuchLeagueFixtures(league)
 
-    for event in leagueV3["events"]:
+    return find_event_in_league(leagueV3, league, home, away)
 
-        if not is_teams_match(event.get("home", ""), home):
-            continue
-        if not is_teams_match(event.get("away", ""), away):
-            continue
-        return {"eventId": event["id"], "leagueId": league_id}
 
-    return NoSuchEvent(league, home, away)
+def find_event_in_league(
+    league_data: FixturesLeagueV3, league: str, home: str, away: str
+) -> EventInfo | NoSuchEvent:
+    """
+    Scans `league_data["events"]` for the best fuzzy match to `home` and `away`.
+    Returns the matching event with the highest sum of match scores, as long as
+    that sum >= 75 (which is 37.5% of the max possible 200).
+    Otherwise, returns NoSuchEvent.
+    """
+    best_event = None
+    best_sum_score = 0
+    for event in league_data["events"]:
+        # Compare the user-provided home and away vs. the fixture's home and away.
+        # Using token_set_ratio (see below for comparison vs token_sort_ratio).
+        score_home = fuzz.token_set_ratio(home, event.get("home", ""))
+        score_away = fuzz.token_set_ratio(away, event.get("away", ""))
+        total_score = score_home + score_away
+        if total_score > best_sum_score:
+            best_sum_score = total_score
+            best_event = event
+    # If the best event's combined fuzzy match is < 37.5% of the total possible 200,
+    # treat it as no match:
+    if best_event is None or best_sum_score < 75:
+        return NoSuchEvent(league, home, away)
+    return {"eventId": best_event["id"], "leagueId": league_data["id"]}
 
 
 def filter_odds(
