@@ -1,7 +1,6 @@
 from typing import cast
 from typing import NotRequired
 from ps3838api.models.odds import OddsTotalV3, OddsEventV3
-from ps3838api.models.odds import OddsTotalV3
 
 
 class OddsTotal(OddsTotalV3):
