@@ -417,8 +417,6 @@ def get_line(
     return cast(LineResponse, _get(endpoint, params))
 
 
-
-
 # parameters are key only, because all are very important
 def place_straigh_bet(
     *,
@@ -484,7 +482,9 @@ def place_straigh_bet(
 
 
 def get_bets(
-    bet_ids: list[int] | None = None, unique_request_ids: list[str] | None = None, since: int | None = None
+    bet_ids: list[int] | None = None,
+    unique_request_ids: list[str] | None = None,
+    since: int | None = None,
 ) -> BetsResponse:
     """
     GET https://api.ps3838.com/v3/bets
@@ -497,7 +497,7 @@ def get_bets(
         # Usually you can pass betIds= comma separated.
         params["betIds"] = ",".join(map(str, bet_ids))
     if unique_request_ids:
-        params['uniqueRequestIds'] =  ",".join(unique_request_ids)
+        params["uniqueRequestIds"] = ",".join(unique_request_ids)
     if since is not None:
         params["since"] = since
 
