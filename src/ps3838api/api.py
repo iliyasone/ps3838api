@@ -496,7 +496,9 @@ def place_straigh_bet(
     return cast(PlaceStraightBetResponse, data)
 
 
-def get_bets(bet_ids: list[int] | None = None, since: int | None = None) -> Any:
+def get_bets(
+    bet_ids: list[int] | None = None, unique_request_ids: list[str] | None = None, since: int | None = None
+) -> BetsResponse:
     """
     GET https://api.ps3838.com/v3/bets
     Retrieve status for placed bets. Filter by betId or since.
@@ -507,10 +509,12 @@ def get_bets(bet_ids: list[int] | None = None, since: int | None = None) -> Any:
     if bet_ids:
         # Usually you can pass betIds= comma separated.
         params["betIds"] = ",".join(map(str, bet_ids))
+    if unique_request_ids:
+        params['uniqueRequestIds'] =  ",".join(unique_request_ids)
     if since is not None:
         params["since"] = since
 
-    return _get(endpoint, params)
+    return cast(BetsResponse, _get(endpoint, params))
 
 
 class BettingStatusResponse(TypedDict):
