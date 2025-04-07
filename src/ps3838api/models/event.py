@@ -27,6 +27,10 @@ class NoSuchLeagueMatching(NoSuchLeague):
 class NoSuchLeagueFixtures(NoSuchLeague):
     pass
 
+@dataclass
+class WrongLeague(NoSuchLeague):
+    pass
+
 
 @dataclass
 class NoSuchEvent:

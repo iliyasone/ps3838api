@@ -1,8 +1,68 @@
 from typing import TypedDict, NotRequired, Literal
 
+type OddsFormat = Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
+
+type FillType = Literal["NORMAL", "FILLANDKILL", "FILLMAXLIMIT"]
+"""
+### NORMAL
+bet will be placed on specified stake.  
+
+### FILLANDKILL
+
+If the stake is over the max limit, bet will be placed on max limit, 
+otherwise it will be placed on specified stake.  
+
+### FILLMAXLIMIT⚠️
+
+bet will be places on max limit⚠️, stake amount will be ignored. 
+Please note that maximum limits can change at any moment, which may result in 
+risking more than anticipated. This option is replacement of isMaxStakeBet from 
+v1/bets/place'
+"""
+
+type Team = Literal["TEAM1", "TEAM2", "DRAW"]
+type Side = Literal["OVER", "UNDER"]
+
+type BetStatus = Literal[
+    "ACCEPTED",
+    "CANCELLED",
+    "LOSE",
+    "PENDING_ACCEPTANCE",
+    "REFUNDED",
+    "NOT_ACCEPTED",
+    "WON",
+    "REJECTED",
+]
+
+type BetStatus2 = Literal[
+    "ACCEPTED",
+    "CANCELLED",
+    "LOST",
+    "PENDING_ACCEPTANCE",
+    "REFUNDED",
+    "NOT_ACCEPTED",
+    "WON",
+    "REJECTED",
+    "HALF_WON_HALF_PUSHED",
+    "HALF_LOST_HALF_PUSHED",
+]
+
+type BetType = Literal["MONEYLINE", "TEAM_TOTAL_POINTS", "SPREAD", "TOTAL_POINTS"]
+
+type BetTypeFull = Literal[
+    "MONEYLINE",
+    "TEAM_TOTAL_POINTS",
+    "SPREAD",
+    "TOTAL_POINTS",
+    "SPECIAL",
+    "PARLAY",
+    "TEASER",
+    "MANUAL",
+]
+
 
 class PlaceStraightBetRequest(TypedDict):
-    oddsFormat: Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
+    oddsFormat: OddsFormat
     uniqueRequestId: str
     acceptBetterLine: bool
     stake: float
@@ -15,7 +75,7 @@ class PlaceStraightBetRequest(TypedDict):
     sportId: int
     eventId: int
     periodNumber: int
-    betType: Literal["MONEYLINE", "TEAM_TOTAL_POINTS", "SPREAD", "TOTAL_POINTS"]
+    betType: BetTypeFull
     team: Literal["TEAM1", "TEAM2", "DRAW"]
     side: NotRequired[Literal["OVER", "UNDER"]]
     handicap: NotRequired[float]
@@ -44,19 +104,10 @@ class StraightBet(TypedDict):
         "NOT_ACCEPTED",
         "WON",
     ]
-    betType: Literal[
-        "MONEYLINE",
-        "TEAM_TOTAL_POINTS",
-        "SPREAD",
-        "TOTAL_POINTS",
-        "SPECIAL",
-        "PARLAY",
-        "TEASER",
-        "MANUAL",
-    ]
+    betType: BetTypeFull
     win: float
     risk: float
-    oddsFormat: Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
+    oddsFormat: OddsFormat
     updateSequence: int
     price: float
     winLoss: NotRequired[float]
@@ -119,3 +170,80 @@ class PlaceStraightBetResponse(TypedDict):
     straightBet: NotRequired[StraightBet]
 
 
+from typing import TypedDict, NotRequired, Literal
+
+
+class CancellationDetailsV3(TypedDict):
+    key: str
+    value: str
+
+
+class CancellationReasonV3(TypedDict):
+    code: str
+    details: list[CancellationDetailsV3]
+
+
+class StraightBetV3(TypedDict):
+    betId: int
+    wagerNumber: int
+    placedAt: str
+    betStatus: BetStatus
+    betStatus2: BetStatus2
+    betType: BetTypeFull
+    win: float
+    risk: float
+    oddsFormat: OddsFormat
+    updateSequence: int
+    price: float
+    isLive: bool
+    eventStartTime: str
+
+    # Optional fields (use NotRequired for fields that may be absent)
+    winLoss: NotRequired[float | None]
+    customerCommission: NotRequired[float | None]
+    cancellationReason: NotRequired[CancellationReasonV3]
+    sportId: NotRequired[int]
+    leagueId: NotRequired[int]
+    eventId: NotRequired[int]
+    handicap: NotRequired[float | None]
+    teamName: NotRequired[str]
+    side: NotRequired[Literal["OVER", "UNDER"] | None]
+    pitcher1: NotRequired[str | None]
+    pitcher2: NotRequired[str | None]
+    pitcher1MustStart: NotRequired[bool | None]
+    pitcher2MustStart: NotRequired[bool | None]
+    team1: NotRequired[str]
+    team2: NotRequired[str]
+    periodNumber: NotRequired[int]
+    team1Score: NotRequired[float | None]
+    team2Score: NotRequired[float | None]
+    ftTeam1Score: NotRequired[float | None]
+    ftTeam2Score: NotRequired[float | None]
+    pTeam1Score: NotRequired[float | None]
+    pTeam2Score: NotRequired[float | None]
+    resultingUnit: NotRequired[str]
+
+
+# Not implemented placeholders:
+class ParlayBetV2(TypedDict): ...
+
+
+class TeaserBet(TypedDict): ...
+
+
+class SpecialBetV3(TypedDict): ...
+
+
+class ManualBet(TypedDict): ...
+
+
+class BetsResponse(TypedDict):
+    moreAvailable: bool
+    pageSize: int
+    fromRecord: int
+    toRecord: int
+    straightBets: list[StraightBetV3]
+    parlayBets: list[ParlayBetV2]
+    teaserBets: list[TeaserBet]
+    specialBets: list[SpecialBetV3]
+    manualBets: list[ManualBet]

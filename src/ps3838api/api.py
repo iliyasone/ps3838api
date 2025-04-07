@@ -32,7 +32,15 @@ from ps3838api.models.errors import (
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
-from ps3838api.models.bets import PlaceStraightBetResponse
+from ps3838api.models.bets import (
+    BetType,
+    BetsResponse,
+    FillType,
+    OddsFormat,
+    PlaceStraightBetResponse,
+    Side,
+    Team,
+)
 
 ###############################################################################
 # Environment Variables & Authorization
@@ -320,7 +328,7 @@ def get_odds(
     sport_id: int = SOCCER_SPORT_ID,
     is_special: bool = False,
     league_ids: list[int] | None = None,
-    odds_format: str = "Decimal",
+    odds_format: OddsFormat = "DECIMAL",
     since: int | None = None,
     is_live: bool | None = None,
     event_ids: list[int] | None = None,
@@ -409,27 +417,6 @@ def get_line(
     return cast(LineResponse, _get(endpoint, params))
 
 
-type OddsFormat = Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
-type BetType = Literal["MONEYLINE", "TEAM_TOTAL_POINTS", "SPREAD", "TOTAL_POINTS"]
-type FillType = Literal["NORMAL", "FILLANDKILL", "FILLMAXLIMIT"]
-"""
-### NORMAL
-bet will be placed on specified stake.  
-
-### FILLANDKILL
-
-If the stake is over the max limit, bet will be placed on max limit, 
-otherwise it will be placed on specified stake.  
-
-### FILLMAXLIMIT⚠️
-
-bet will be places on max limit⚠️, stake amount will be ignored. 
-Please note that maximum limits can change at any moment, which may result in 
-risking more than anticipated. This option is replacement of isMaxStakeBet from 
-v1/bets/place'
-"""
-type Team = Literal["TEAM1", "TEAM2", "DRAW"]
-type Side = Literal["OVER", "UNDER"]
 
 
 # parameters are key only, because all are very important
