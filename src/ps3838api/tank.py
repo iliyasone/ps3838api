@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+from time import time
 from typing import Final, TypedDict
 
 from ps3838api import ROOT_DIR
@@ -21,7 +22,6 @@ from ps3838api.models.event import (
 )
 
 from rapidfuzz import fuzz
-
 
 
 def merge_fixtures(old: FixturesResponse, new: FixturesResponse) -> FixturesResponse:
@@ -46,28 +46,76 @@ def merge_fixtures(old: FixturesResponse, new: FixturesResponse) -> FixturesResp
 
 
 def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
+    """
+    Merge a snapshot OddsResponse (old) with a delta OddsResponse (new).
+    - Leagues are matched by league["id"].
+    - Events are matched by event["id"].
+    - Periods are matched by period["number"].
+    - Any period present in 'new' entirely replaces the same period number in 'old'.
+    - Periods not present in 'new' remain as they were in 'old'.
+
+    Returns a merged OddsResponse that includes updated odds and periods, retaining
+    old entries when no changes were reported in the delta.
+    """
+    # Index the old leagues by their IDs
     league_index: dict[int, OddsLeagueV3] = {
         league["id"]: league for league in old.get("leagues", [])
     }
 
+    # Loop through the new leagues
     for new_league in new.get("leagues", []):
         lid = new_league["id"]
-        if lid in league_index:
-            old_event_index = {
-                event["id"]: event for event in league_index[lid]["events"]
+
+        # If it's an entirely new league, just store it
+        if lid not in league_index:
+            league_index[lid] = new_league
+            continue
+
+        # Otherwise merge it with the existing league
+        old_league = league_index[lid]
+        old_event_index = {event["id"]: event for event in old_league.get("events", [])}
+
+        # Loop through the new events
+        for new_event in new_league.get("events", []):
+            eid = new_event["id"]
+
+            # If it's an entirely new event, just store it
+            if eid not in old_event_index:
+                old_event_index[eid] = new_event
+                continue
+
+            # Otherwise, merge with the existing event
+            old_event = old_event_index[eid]
+
+            # Periods: build an index by 'number' from the old event
+            old_period_index = {
+                p["number"]: p for p in old_event.get("periods", []) if "number" in p
             }
 
-            for new_event in new_league["events"]:
-                eid = new_event["id"]
-                old_event_index[eid] = new_event  # override or insert
+            # Take all the new event's periods and override or insert them by 'number'
+            for new_period in new_event.get("periods", []):
+                if "number" not in new_period:
+                    continue
+                old_period_index[new_period["number"]] = new_period
 
-            league_index[lid]["events"] = list(old_event_index.values())
-        else:
-            league_index[lid] = new_league  # entirely new league
+            # Merge top-level fields: new event fields override old ones
+            merged_event = old_event.copy()
+            merged_event.update(new_event)
+
+            # Rebuild the merged_event's periods from the updated dictionary
+            merged_event["periods"] = list(old_period_index.values())
+
+            # Store back in the event index
+            old_event_index[eid] = merged_event
+
+        # Rebuild league's events list from the merged event index
+        old_league["events"] = list(old_event_index.values())
 
     return {
         "sportId": new.get("sportId", old["sportId"]),
-        "last": new["last"],  # always take latest timestamp
+        # Always take the latest `last` timestamp from the new (delta) response
+        "last": new["last"],
+        # Rebuild leagues list
         "leagues": list(league_index.values()),
     }
 
@@ -99,17 +147,30 @@ class FixtureTank:
             json.dump(self.data, file, indent=4)
 
 
+MIN_TIME_DELTA_UPDATE = 5
+"""
+Delta calls to /fixtures and /odds endpoints must be restricted to once every 5 seconds, 
+regardless of the leagueIds, eventIds or islive parameters.
+
+Source: Fair Use Policy: https://ps3838api.github.io/FairUsePolicy.html
+"""
+
+
 class OddsTank:
     def __init__(self, file_path: str | Path = ROOT_DIR / "temp/odds.json") -> None:
         self.file_path = file_path
+        self.last_time_updated: float = 0
         self.is_live: bool | None = None
         try:
             with open(file_path) as file:
                 self.data: OddsResponse = json.load(file)
         except FileNotFoundError:
             self.data: OddsResponse = ps.get_odds(ps.SOCCER_SPORT_ID)
+            self.last_time_updated = time()
 
     def update(self):
+        if time() - self.last_time_updated < MIN_TIME_DELTA_UPDATE:
+            return
         delta = ps.get_odds(
             ps.SOCCER_SPORT_ID, is_live=self.is_live, since=self.data["last"]
         )
@@ -254,11 +315,12 @@ def find_event_in_league(
         return NoSuchEvent(league, home, away)
     return {"eventId": best_event["id"], "leagueId": league_data["id"]}
 
+
 def find_event_by_id(fixtures: FixturesResponse, event: EventInfo) -> FixtureV3 | None:
     for leagueV3 in fixtures["league"]:
-        if leagueV3['id'] == event['leagueId']:
-            for fixtureV3 in leagueV3['events']:
-                if fixtureV3['id'] == event['eventId']:
+        if leagueV3["id"] == event["leagueId"]:
+            for fixtureV3 in leagueV3["events"]:
+                if fixtureV3["id"] == event["eventId"]:
                     return fixtureV3
     return None
 
