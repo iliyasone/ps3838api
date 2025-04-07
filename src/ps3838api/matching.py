@@ -17,7 +17,7 @@ import json
 from typing import Final
 
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
-from ps3838api.tank import EventInfo
+from ps3838api.models.tank import EventInfo
 
 
 with open(ROOT_DIR / "out/matched_leagues.json") as file:

@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 import json
 from pathlib import Path
 from time import time
-from typing import TypedDict
 
 from ps3838api import ROOT_DIR
 import ps3838api.api as ps
@@ -14,6 +13,8 @@ from ps3838api.logic import (
     merge_odds_response,
 )
 from ps3838api.matching import find_event_in_league, match_league, MATCHED_LEAGUES
+
+from ps3838api.models.tank import EventInfo
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.odds import OddsEventV3, OddsResponse
 from ps3838api.models.event import (
@@ -21,6 +22,7 @@ from ps3838api.models.event import (
     NoResult,
     NoSuchLeague,
 )
+
 
 SNAPSHOT_INTERVAL = 60  # 1 minute
 DELTA_INTERVAL = 5  # 5 seconds
@@ -168,9 +170,6 @@ class OddsTank:
             json.dump(self.data, file, indent=4)
 
 
-class EventInfo(TypedDict):
-    leagueId: int
-    eventId: int
 
 
 @dataclass

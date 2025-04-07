@@ -1,7 +1,7 @@
 from ps3838api.models.event import NoSuchLeagueFixtures, NoSuchOddsAvailable
 from ps3838api.models.fixtures import FixtureV3, FixturesLeagueV3, FixturesResponse
 from ps3838api.models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
-from ps3838api.tank import EventInfo
+from ps3838api.models.tank import EventInfo
 
 
 def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
