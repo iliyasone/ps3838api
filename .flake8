@@ -2,6 +2,32 @@
 max-complexity = 10
 max-line-length = 160
 exclude =
+    .venv
     main.py
     match_leagues.py
-    .venv
+
+ignore =
+    E203,  
+    # whitespace before ':', конфликтует с black
+    E266,  
+    # too many leading '#' for block comment
+    E501,  
+    # line too long (handled by max-line-length)
+    W503,  
+    # line break before binary operator (black style)
+    E302,  
+    # expected 2 blank lines
+    E305,  
+    # expected 2 blank lines after class or function
+    E303,  
+    # too many blank lines
+    E701,  
+    # multiple statements on one line (colon)
+    E222,  
+    # multiple spaces after operator
+    W291,  
+    # trailing whitespace
+    W292,  
+    # no newline at end of file
+    E402,  
+    # module level import not at top of file
