@@ -41,7 +41,7 @@ class FixtureTank:
 
     def __init__(
         self,
-        league_ids: list[int] | None = TOP_LEAGUES,
+        league_ids: list[int] | None = None,
         file_path: str | Path = ROOT_DIR / "temp" / "fixtures.json",
     ) -> None:
         self.file_path = Path(file_path)
@@ -108,7 +108,7 @@ class OddsTank:
 
     def __init__(
         self,
-        league_ids: list[int] | None = TOP_LEAGUES,
+        league_ids: list[int] | None = None,
         file_path: str | Path = ROOT_DIR / "temp" / "odds.json",
     ) -> None:
         self.file_path = Path(file_path)
@@ -174,8 +174,13 @@ class OddsTank:
 
 @dataclass
 class EventMatcher:
-    fixtures: FixtureTank = field(default_factory=FixtureTank)
-    odds: OddsTank = field(default_factory=OddsTank)
+    fixtures: FixtureTank = field(init=False)
+    odds: OddsTank = field(init=False)
+    league_ids: list[int] | None = TOP_LEAGUES
+
+    def __post_init__(self):
+        self.fixtures = FixtureTank(league_ids=self.league_ids)
+        self.odds = OddsTank(league_ids=self.league_ids)
 
     def save(self):
         self.fixtures.save()
