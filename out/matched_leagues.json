@@ -166,11 +166,11 @@
   },
   {
     "betsapi_league": "South Korea K League 2",
-    "ps3838_league": "Korea Republic - K League 1",
-    "ps3838_id": 207551
+    "ps3838_league": "Korea Republic - K League 2",
+    "ps3838_id": 207552
   },
   {
-    "betsapi_league": "Japan J1-League",
+    "betsapi_league": "Japan J-League",
     "ps3838_league": "Japan - J League",
     "ps3838_id": 2157
   },
@@ -186,8 +186,8 @@
   },
   {
     "betsapi_league": "South Korea K League 1",
-    "ps3838_league": "Korea Republic - K League 2",
-    "ps3838_id": 207552
+    "ps3838_league": "Korea Republic - K League 1",
+    "ps3838_id": 207551
   },
   {
     "betsapi_league": "USA MLS",
