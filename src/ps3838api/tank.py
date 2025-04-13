@@ -175,7 +175,6 @@ class OddsTank:
 
 
 
-
 @dataclass
 class EventMatcher:
     fixtures: FixtureTank = field(init=False)
