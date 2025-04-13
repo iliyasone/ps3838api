@@ -38,8 +38,13 @@ class NoSuchEvent:
     home: str
     away: str
 
+@dataclass
+class EventTooFarInFuture:
+    league: str
+    home: str
+    away: str
 
-type Failure = NoSuchLeague | NoSuchEvent
+type Failure = NoSuchLeague | NoSuchEvent | EventTooFarInFuture
 
 
 #######################################

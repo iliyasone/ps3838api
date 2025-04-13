@@ -111,6 +111,12 @@ def find_league_in_fixtures(
     else:
         return NoSuchLeagueFixtures(league)
 
+def find_fixtureV3_in_league(leagueV3: FixturesLeagueV3, event_id: int) -> FixtureV3:
+    for eventV3 in leagueV3['events']:
+        if eventV3["id"] == event_id:
+            return eventV3
+    raise ValueError('No such event')
+
 
 def filter_odds(
     odds: OddsResponse, event_id: int, league_id: int | None = None

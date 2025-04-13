@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import datetime
 import json
 from pathlib import Path
 from time import time
@@ -8,6 +9,7 @@ import ps3838api.api as ps
 
 from ps3838api.logic import (
     filter_odds,
+    find_fixtureV3_in_league,
     find_league_in_fixtures,
     merge_fixtures,
     merge_odds_response,
@@ -18,8 +20,10 @@ from ps3838api.models.tank import EventInfo
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.odds import OddsEventV3, OddsResponse
 from ps3838api.models.event import (
+    EventTooFarInFuture,
     Failure,
     NoResult,
+    NoSuchEvent,
     NoSuchLeague,
 )
 
@@ -207,7 +211,21 @@ class EventMatcher:
             if isinstance(leagueV3, NoSuchLeague):
                 return leagueV3
 
-        return find_event_in_league(leagueV3, league, home, away)
+        match find_event_in_league(leagueV3, league, home, away):
+            case NoSuchEvent() as f:
+                return f
+            case event:
+                event = event
+        fixture = find_fixtureV3_in_league(leagueV3, event['eventId'])
+
+        if 'starts' in fixture:
+            fixture_start = datetime.datetime.fromisoformat(fixture['starts'])
+            now = datetime.datetime.now(datetime.timezone.utc)
+            time_diff = fixture_start - now
+            # Check if the event starts in 60 minutes or less, but not in the past
+            if datetime.timedelta(0) <= time_diff <= datetime.timedelta(minutes=60):
+                return event
+        return EventTooFarInFuture(league, home, away)
 
     def get_odds(
         self, event: EventInfo, force_local: bool = False
