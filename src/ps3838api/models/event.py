@@ -39,12 +39,10 @@ class NoSuchEvent:
     away: str
 
 @dataclass
-class EventTooFarInFuture:
-    league: str
-    home: str
-    away: str
+class EventTooFarInFuture(NoSuchEvent):
+    pass
 
-type Failure = NoSuchLeague | NoSuchEvent | EventTooFarInFuture
+type Failure = NoSuchLeague | NoSuchEvent
 
 
 #######################################
