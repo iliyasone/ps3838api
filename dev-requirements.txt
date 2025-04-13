@@ -4,3 +4,4 @@ flake8
 requests
 pytest
 ipykernel
+openpyxl
