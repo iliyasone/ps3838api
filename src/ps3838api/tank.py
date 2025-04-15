@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from time import time
 
-from ps3838api import ROOT_DIR
 import ps3838api.api as ps
 
 from ps3838api.logic import (
@@ -31,7 +30,7 @@ from ps3838api.models.event import (
 SNAPSHOT_INTERVAL = 60  # 1 minute
 DELTA_INTERVAL = 5  # 5 seconds
 
-RESPONSES_DIR = ROOT_DIR / "temp" / "responses"
+RESPONSES_DIR = Path("temp/responses")
 RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
 
 TOP_LEAGUES = [league["ps3838_id"] for league in MATCHED_LEAGUES if league["ps3838_id"]]
@@ -46,7 +45,7 @@ class FixtureTank:
     def __init__(
         self,
         league_ids: list[int] | None = None,
-        file_path: str | Path = ROOT_DIR / "temp" / "fixtures.json",
+        file_path: str | Path = "temp/fixtures.json",
     ) -> None:
         self.file_path = Path(file_path)
         self.last_call_time = 0.0
@@ -113,7 +112,7 @@ class OddsTank:
     def __init__(
         self,
         league_ids: list[int] | None = None,
-        file_path: str | Path = ROOT_DIR / "temp" / "odds.json",
+        file_path: str | Path = "temp/odds.json",
     ) -> None:
         self.file_path = Path(file_path)
         self.last_call_time = 0.0
