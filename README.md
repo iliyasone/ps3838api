@@ -1,12 +1,14 @@
 # Modern PS3838 API
 
-A lightweight Python library to interact with the PS3838 API.
+A lightweight Python library to interact with the PS3838 (Pinnacle) API and place bets.
 
 ## 🔑 Key Idea
 
 This project aims to keep all method names and behavior as close as possible to the official [PS3838 API documentation](https://ps3838api.github.io/docs/). No abstraction layers that get in your way — just a clean, Pythonic functional interface to the raw API.
 
 If you need assistance, contact me directly on Telegram: [@iliyasone](https://t.me/iliyasone) 💬
+
+If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach out — I can help you get started with obtaining access.
 
 ## ✨ Features
 
