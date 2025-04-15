@@ -179,7 +179,7 @@ class OddsTank:
 class EventMatcher:
     fixtures: FixtureTank = field(init=False)
     odds: OddsTank = field(init=False)
-    league_ids: list[int] | None = field(default_factory=TOP_LEAGUES.copy)
+    league_ids: list[int] | None = None
 
     def __post_init__(self):
         self.fixtures = FixtureTank(league_ids=self.league_ids)
