@@ -196,9 +196,13 @@ def raise_ps3838_api_errors(
         except requests.exceptions.HTTPError as e:
             if e.response and e.response.status_code == 405:
                 raise WrongEndpoint()
-            raise AccessBlockedError(
-                e.response.status_code if e.response else "Unknown"
-            )
+            match e.response.json():
+                case {"code": str(code), "message": str(message)}:
+                    raise AccessBlockedError(message)
+                case _:
+                    raise AccessBlockedError(
+                        e.response.status_code if e.response else "Unknown"
+                    )
         except requests.exceptions.JSONDecodeError:
             raise AccessBlockedError("Empty response")
 
