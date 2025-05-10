@@ -419,7 +419,7 @@ def get_line(
 
     return cast(LineResponse, _get(endpoint, params))
 
-
+#
 # parameters are key only, because all are very important
 def place_straigh_bet(
     *,
@@ -449,6 +449,9 @@ def place_straigh_bet(
     # HANDICAP (OR POINTS)
     handicap: float | None = None,
 ) -> PlaceStraightBetResponse:
+    """
+    https://ps3838api.github.io/docs/#tag/Place-Bets/operation/Bets_StraightV2
+    """
     if unique_request_id is None:
         unique_request_id = str(uuid.uuid1())
     if sport_id != BASEBALL_SPORT_ID:
