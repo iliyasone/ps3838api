@@ -67,8 +67,7 @@ _HEADERS = {
 # API Base
 ###############################################################################
 
-_BASE_URL: str = "https://api.ps3838.com"
-
+_BASE_URL: str = os.environ.get("API_BASE_URL",  "https://api.ps3838.com")
 
 ###############################################################################
 # TypedDict Classes
