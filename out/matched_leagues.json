@@ -160,16 +160,6 @@
     "ps3838_id": 2457
   },
   {
-    "betsapi_league": "USA MLS",
-    "ps3838_league": "USA - Major League Soccer",
-    "ps3838_id": 2663
-  },
-  {
-    "betsapi_league": "Mexico Liga MX",
-    "ps3838_league": "Mexico - Primera Division",
-    "ps3838_id": 2242
-  },
-  {
     "betsapi_league": "UEFA Conference League",
     "ps3838_league": "UEFA - Conference League",
     "ps3838_id": 214101
@@ -208,5 +198,10 @@
     "betsapi_league": "Europe - World Cup Qualifying",
     "ps3838_league": "FIFA - World Cup Qualifiers Europe",
     "ps3838_id": 2015
+  },
+  {
+    "betsapi_league": "Russia Premier League",
+    "ps3838_league": "Russia - Premier League",
+    "ps3838_id": 2406
   }
 ]
