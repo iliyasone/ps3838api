@@ -14,7 +14,7 @@ If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach 
 
 ### `ps3838api.api` — Minimalist, Typed API Wrapper
 
-- **Simple & Clear:** All commonly used endpoints are exposed as straightforward Python functions.
+- **Client-First:** Instantiate `ps3838api.api.Client` with credentials supplied via environment variables and call methods directly. Legacy module-level helpers still work for backwards compatibility, but marked as deprecated.
 - **Type-Safe:** Responses are structured using precise `TypedDict` definitions based directly on the official docs.
 - **Clean Data:** Say goodbye to messy, undocumented JSON blobs.
 - **Lightweight:** No bloated ORMs or clunky third-party wrappers — just clean, readable code.
@@ -42,10 +42,10 @@ import os
 
 os.environ["PS3838_LOGIN"] = "your_username"
 os.environ["PS3838_PASSWORD"] = "your_password"
-os.environ["PS3838_API_BASE_URL"] = "https://api.ps3838.com/"
+os.environ["PS3838_API_BASE_URL"] = "https://api.ps3838.com"
 ```
 
-> **Note:** After version 1.0, the library will transition to a client-based API instead of just functions.
+> **Note:** The API base URL defaults to `https://api.ps3838.com`, so you usually only need to set the login and password.
 
 ---
 
@@ -54,9 +54,10 @@ os.environ["PS3838_API_BASE_URL"] = "https://api.ps3838.com/"
 Quickly check your account balance by calling the API:
 
 ```python
-import ps3838api.api as ps
+from ps3838api.api import Client
 
-balance = ps.get_client_balance()
+client = Client()  # reads PS3838_LOGIN / PS3838_PASSWORD (and optional base URL)
+balance = client.get_client_balance()
 print("Client Balance:", balance)
 ```
 
@@ -76,11 +77,15 @@ Expected output:
 Find and use events with ease:
 
 ```python
+from ps3838api.api import Client
+from ps3838api.models.sports import SOCCER_SPORT_ID
+
 league = 'Russia - Cup'
 home = 'Lokomotiv Moscow'
 away = 'Akhmat Grozny'
 
-fixtures = ps.get_fixtures()  # sport_id: int = SOCCER_SPORT_ID by default
+client = Client()
+fixtures = client.get_fixtures(sport_id=SOCCER_SPORT_ID)
 ```
 
 Match the event using utility functions:
@@ -104,7 +109,7 @@ Filter odds for the selected event:
 ```python
 from ps3838api.logic import filter_odds
 
-odds_response = ps.get_odds()
+odds_response = client.get_odds()
 odds_eventV3 = filter_odds(odds_response, event_id=event['eventId'])
 ```
 
@@ -137,11 +142,9 @@ Once you have your event and total line, place your bet:
 assert isinstance(event, dict)  # also could be Failure
 assert total_line is not None 
 
-import ps3838api.api as ps
-
 stake_usdt = 1.0
 
-place_bet_response = ps.place_straigh_bet(
+place_bet_response = client.place_straigh_bet(
     stake=stake_usdt,
     event_id=event['eventId'],
     bet_type='TOTAL_POINTS',
@@ -156,7 +159,7 @@ print("Unique Request ID:", place_bet_response['uniqueRequestId'])
 You can also check your bet status:
 
 ```python
-bets = ps.get_bets(unique_request_ids=[place_bet_response['uniqueRequestId']])
+bets = client.get_bets(unique_request_ids=[place_bet_response['uniqueRequestId']])
 # Verify the bet status
 ```
 
