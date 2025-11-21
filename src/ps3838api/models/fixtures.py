@@ -15,17 +15,17 @@ class FixtureV3(TypedDict, total=False):
     id: Required[int]
     parentId: int
     starts: str  # date-time in UTC
-    home: str
-    away: str
+    home: Required[str]
+    away: Required[str]
     rotNum: str  # Will be removed in future; see docs
-    liveStatus: int
+    liveStatus: Required[int]
     homePitcher: str  # Baseball only
     awayPitcher: str  # Baseball only
     status: str  # "O", "H", or "I" (deprecated)
     betAcceptanceType: int
     parlayRestriction: int
     altTeaser: bool
-    resultingUnit: str  # e.g. "corners", "bookings"
+    resultingUnit: Required[str]  # e.g. "corners", "bookings"
     version: int  # fixture version changes with any update
 
 

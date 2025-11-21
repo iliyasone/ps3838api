@@ -14,7 +14,7 @@ from ps3838api.models.event import (
 import ps3838api.api as ps
 
 import json
-from typing import Final
+from typing import Final, Literal
 
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
 from ps3838api.models.tank import EventInfo
@@ -52,9 +52,15 @@ def find_league_by_name(
 
 
 def find_event_in_league(
-    league_data: FixturesLeagueV3, league: str, home: str, away: str
+    league_data: FixturesLeagueV3, league: str, home: str, away: str, live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH"
 ) -> EventInfo | NoSuchEvent:
     """
+    If live_status is "LIVE", search only for events with a parentId. 
+    This does not necessarily mean the event is live — it could also be a corners subevent.
+
+    If live_status is "PREMATCH", search only for events without a parentId. 
+    Some prematch events (e.g. corners leagues) will be skipped.
+
     Scans `league_data["events"]` for the best fuzzy match to `home` and `away`.
     Returns the matching event with the highest sum of match scores, as long as
     that sum >= 75 (which is 37.5% of the max possible 200).
@@ -63,6 +69,16 @@ def find_event_in_league(
     best_event = None
     best_sum_score = 0
     for event in league_data["events"]:
+        match (live_status, 'parentId' in event):
+            case None, _:
+                pass
+            case "PREMATCH", False:
+                pass
+            case "LIVE", True:
+                pass
+            case _:
+                continue
+
         # Compare the user-provided home and away vs. the fixture's home and away.
         # Using token_set_ratio (see below for comparison vs token_sort_ratio).
         score_home = fuzz.token_set_ratio(home, event.get("home", ""))
@@ -79,12 +95,21 @@ def find_event_in_league(
 
 
 def magic_find_event(
-    fixtures: FixturesResponse, league: str, home: str, away: str
+    fixtures: FixturesResponse, league: str, home: str, away: str, live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH"
 ) -> EventInfo | Failure:
     """
     1. Tries to find league by normalizng names;
     2. If don't, search for a league matching
     3. Then `find_event_in_league`
+    
+    If live_status is "LIVE", search only for events with a parentId. 
+    This does not necessarily mean the event is live — it could also be a corners subevent.
+
+    If live_status is "PREMATCH", search only for events without a parentId. 
+    Some prematch events (e.g. corners leagues) will be skipped.
+    
+    If live_status is None, search for any.  
+
     """
 
     leagueV3 = find_league_by_name(league)
@@ -103,4 +128,4 @@ def magic_find_event(
     else:
         return NoSuchLeagueFixtures(league)
 
-    return find_event_in_league(leagueV3, league, home, away)
+    return find_event_in_league(leagueV3, league, home, away, live_status)

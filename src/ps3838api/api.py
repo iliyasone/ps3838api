@@ -67,8 +67,7 @@ _HEADERS = {
 # API Base
 ###############################################################################
 
-_BASE_URL: str = "https://api.ps3838.com"
-
+_BASE_URL: str = os.environ.get("API_BASE_URL",  "https://api.ps3838.com")
 
 ###############################################################################
 # TypedDict Classes
@@ -196,9 +195,13 @@ def raise_ps3838_api_errors(
         except requests.exceptions.HTTPError as e:
             if e.response and e.response.status_code == 405:
                 raise WrongEndpoint()
-            raise AccessBlockedError(
-                e.response.status_code if e.response else "Unknown"
-            )
+            match e.response.json():
+                case {"code": str(code), "message": str(message)}:
+                    raise AccessBlockedError(message)
+                case _:
+                    raise AccessBlockedError(
+                        e.response.status_code if e.response else "Unknown"
+                    )
         except requests.exceptions.JSONDecodeError:
             raise AccessBlockedError("Empty response")
 
@@ -416,7 +419,7 @@ def get_line(
 
     return cast(LineResponse, _get(endpoint, params))
 
-
+#
 # parameters are key only, because all are very important
 def place_straigh_bet(
     *,
@@ -446,6 +449,9 @@ def place_straigh_bet(
     # HANDICAP (OR POINTS)
     handicap: float | None = None,
 ) -> PlaceStraightBetResponse:
+    """
+    https://ps3838api.github.io/docs/#tag/Place-Bets/operation/Bets_StraightV2
+    """
     if unique_request_id is None:
         unique_request_id = str(uuid.uuid1())
     if sport_id != BASEBALL_SPORT_ID:
