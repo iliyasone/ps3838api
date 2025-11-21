@@ -1,12 +1,11 @@
 from typing import cast
-from typing import NotRequired
 from ps3838api.models.odds import OddsTotalV3, OddsEventV3
 
 
 class OddsTotal(OddsTotalV3):
-    """Either has line or alt line id"""
+    """Has line id"""
 
-    lineId: NotRequired[int]
+    lineId: int
 
 
 def calculate_margin(total: OddsTotalV3) -> float:
@@ -21,25 +20,31 @@ def get_all_total_lines(
 ) -> list[OddsTotal]:
     result: list[OddsTotal] = []
     for period in odds["periods"]:  # type: ignore
-        if (
-            "number" not in period
-            or period["number"] not in periods
-            or "totals" not in period
-        ):
+        if "number" not in period:
+            # skip if unknown period
+            continue
+        if period["number"] not in periods:
+            # skip if wrong periood
+            continue
+        if "totals" not in period:
+            # skip if no totals in this period
+            continue
+        if "lineId" not in period:
+            # skip if don't have lineId
             continue
 
-        lineId = period["lineId"] if "lineId" in period else None
+        lineId = period["lineId"]
         maxTotal = period["maxTotal"] if "maxTotal" in period else None
 
         for total in period["totals"]:
-            if "altLineId" not in total and lineId is not None:
-                odds_total = cast(OddsTotal, total.copy())
-                odds_total["lineId"] = lineId
+            odds_total = cast(OddsTotal, total.copy())
+            odds_total["lineId"] = lineId
+            # each total should have lineId
+
+            if "altLineId" not in total:
                 if maxTotal is not None:
                     odds_total["max"] = maxTotal
-                result.append(odds_total)
-            else:
-                result.append(cast(OddsTotal, total))
+            result.append(odds_total)
     return result
 
 
