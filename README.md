@@ -170,7 +170,7 @@ To install the library locally, run the following commands:
 ```bash
 git clone https://github.com/iliyasone/ps3838api.git
 cd ps3838api
-pip install . -r dev-requirements.txt
+uv sync --group test --group lint --group dev
 ```
 
 Happy coding

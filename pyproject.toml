@@ -19,8 +19,8 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "requests",
-  "rapidfuzz"
+    "rapidfuzz>=3.14.3",
+    "requests>=2.32.5",
 ]
 
 [project.urls]
@@ -29,3 +29,16 @@ Issues = "https://github.com/iliyasone/ps3838api/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+test = [
+    "pytest>=9.0.1",
+]
+lint = [
+    "flake8>=7.3.0",
+]
+dev = [
+    "ipykernel>=7.1.0",
+]
+
+
