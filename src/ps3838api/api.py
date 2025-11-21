@@ -22,6 +22,7 @@ from typing import Literal, TypedDict, Any, NotRequired
 from typing import cast
 from typing import Callable, ParamSpec, TypeVar
 from functools import wraps
+from datetime import datetime
 
 from ps3838api.models.errors import (
     AccessBlockedError,
@@ -532,3 +533,55 @@ def get_betting_status() -> BettingStatusResponse:
     """
     endpoint: str = "/v1/bets/betting-status"
     return cast(BettingStatusResponse, _get(endpoint, {}))
+
+
+def export_my_bets(
+    *,
+    from_datetime: datetime,
+    to_datetime: datetime,
+    d: int = -1,
+    status: Literal["UNSETTLED","SETTLED"] = "SETTLED",
+    sd: bool = False,
+    bet_type: str = "WAGER",
+    product: str = "SB,PP,BG",
+    locale: str = "en_US",
+    timezone: str = "GMT-4",
+) -> bytes:
+    """
+    Export account bets for a given time range.
+
+    This wraps the website endpoint:
+    GET https://www.ps3838.com/member-service/v2/export/my-bets/all
+
+    Args:
+        from_datetime: Start of the export interval.
+        to_datetime: End of the export interval.
+        d: Extra filter parameter (kept as-is, default -1).
+        status: Bet status filter, e.g. "SETTLED".
+        sd: Whether to sort descending.
+        bet_type: Type of export, e.g. "WAGER".
+        product: Comma-separated product list, e.g. "SB,PP,BG".
+        locale: Locale string, e.g. "en_US".
+        timezone: Timezone identifier, e.g. "GMT-4".
+
+    Returns:
+        Raw bytes of .xls file.
+    """
+    raise NotImplementedError
+    url = "https://www.ps3838.com/member-service/v2/export/my-bets/all"
+
+    params: dict[str, Any] = {
+        "f": from_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        "t": to_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        "d": d,
+        "s": status,
+        "sd": str(sd).lower(),
+        "type": bet_type,
+        "product": product,
+        "locale": locale,
+        "timezone": timezone,
+    }
+
+    response = requests.get(url, headers=_HEADERS, params=params)
+    response.raise_for_status()
+    return response.content

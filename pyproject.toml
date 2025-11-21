@@ -8,10 +8,10 @@ version = "0.1.1"
 authors = [
   { name = "Ilias Dzhabbarov", email = "ilias.dzabbarov@gmail.com" }
 ]
-description = "A lightweight Python library to interact with the PS3838 (Pinnacle) API and place bets."
+description = "A lightweight Python library to interact with the Pinnacle API (PS3838, Pinnacle888 etc.) and place bets."
 readme = "README.md"
 keywords = ["ps3838", "sports betting", "api", "pinnacle", "odds", "python"]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -39,6 +39,7 @@ lint = [
 ]
 dev = [
     "ipykernel>=7.1.0",
+    "python-dotenv>=1.2.1",
 ]
 
 
