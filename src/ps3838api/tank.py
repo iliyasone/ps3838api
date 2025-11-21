@@ -18,7 +18,6 @@ import datetime
 import json
 from time import time
 
-from ps3838api import ROOT_DIR
 import ps3838api.api as ps
 
 from ps3838api.logic import (
@@ -43,7 +42,7 @@ from ps3838api.models.tank import EventInfo
 SNAPSHOT_INTERVAL = 60  # seconds
 DELTA_INTERVAL = 5      # seconds
 
-RESPONSES_DIR = ROOT_DIR / "temp" / "responses"
+RESPONSES_DIR = Path("temp/responses")
 RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
 
 TOP_LEAGUES = [league["ps3838_id"] for league in MATCHED_LEAGUES if league["ps3838_id"]]
@@ -68,7 +67,10 @@ class FixtureTank:
     # ──────────────────────────────────────────────────────────────────────
     # Private helpers
     # ──────────────────────────────────────────────────────────────────────
-    def _save_response(self, resp: FixturesResponse, *, snapshot: bool) -> None:
+    def _save_response(self, response_data: FixturesResponse, snapshot: bool) -> None:
+        """
+        Save fixture response to the temp/responses folder for future testing.
+        """
         kind = "snapshot" if snapshot else "delta"
         fn = RESPONSES_DIR / f"fixtures_{kind}_{int(time())}.json"
         with open(fn, "w") as f:
@@ -160,7 +162,7 @@ class OddsTank:
 class EventMatcher:
     fixtures: FixtureTank = field(init=False)
     odds: OddsTank = field(init=False)
-    league_ids: list[int] | None = field(default_factory=TOP_LEAGUES.copy)
+    league_ids: list[int] | None = None
 
     def __post_init__(self):
         self.fixtures = FixtureTank(league_ids=self.league_ids)

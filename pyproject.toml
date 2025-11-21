@@ -1,3 +1,31 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "ps3838api"
+version = "0.1.1"
+authors = [
+  { name = "Ilias Dzhabbarov", email = "ilias.dzabbarov@gmail.com" }
+]
+description = "A lightweight Python library to interact with the PS3838 (Pinnacle) API and place bets."
+readme = "README.md"
+keywords = ["ps3838", "sports betting", "api", "pinnacle", "odds", "python"]
+requires-python = ">=3.11"
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+dependencies = [
+  "requests",
+  "rapidfuzz"
+]
+
+[project.urls]
+Homepage = "https://github.com/iliyasone/ps3838api"
+Issues = "https://github.com/iliyasone/ps3838api/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
