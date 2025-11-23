@@ -155,7 +155,7 @@ def place_straigh_bet(
     side: Side | None = None,
     handicap: float | None = None,
 ) -> PlaceStraightBetResponse:
-    return _get_default_client().place_straigh_bet(
+    return _get_default_client().place_straight_bet(
         stake=stake,
         event_id=event_id,
         bet_type=bet_type,

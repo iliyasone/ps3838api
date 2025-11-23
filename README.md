@@ -8,6 +8,8 @@ This project aims to keep all method names and behavior as close as possible to 
 
 If you need assistance, contact me directly on Telegram: [@iliyasone](https://t.me/iliyasone) 💬
 
+If you have any questions or need additional tools, join Betting API PS3838 & Pinnacle Telegram Group Chat: [@ps3838api](https://t.me/ps3838api/77/78) 
+
 If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach out — I can help you get started with obtaining access.
 
 ## ✨ Features
@@ -19,44 +21,47 @@ If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach 
 - **Clean Data:** Say goodbye to messy, undocumented JSON blobs.
 - **Lightweight:** No bloated ORMs or clunky third-party wrappers — just clean, readable code.
 
-### Event & Odds Matching
-
-- Utility functions like `magic_find_event` and `filter_odds` help you match events and filter odds quickly and effortlessly 🔍.
-
 ### Bet Placement
 
-- Place bets with simple functions that eliminate unnecessary overhead. Fast and efficient, just as you like it!
+- Place bets with simple functions that eliminate unnecessary overhead.
 
 ## 🚀 Setup
 
 > You can also check out the [📓 examples.ipynb](https://github.com/iliyasone/ps3838api/blob/release/0.1.0/examples/examples.ipynb) for a quick start!
 
-The Project has been created and tested on the Python 3.13.7, however it should work also on Python>=3.12
+This project has been created and tested on the Python 3.13.7, however it should work also on Python>=3.12
 
-### 1. Set Environment Variables
-
-Before using the library, set your API credentials via environment variables:
+### 1. Create PinnacleClient
 
 ```python
-import os
+from ps3838api.api.client import PinnacleClient
+from ps3838api.models.sports import Sport
 
-os.environ["PS3838_LOGIN"] = "your_username"
-os.environ["PS3838_PASSWORD"] = "your_password"
-os.environ["PS3838_API_BASE_URL"] = "https://api.ps3838.com"
+client = PinnacleClient(
+    login='YOUR_LOGIN',
+    password='YOUR_PASSWORD',
+    api_base_url='https://api.ps3838.com', # default
+    default_sport=Sport.SOCCER_SPORT_ID # default
+)
 ```
 
-> **Note:** The API base URL defaults to `https://api.ps3838.com`, so you usually only need to set the login and password.
+`PinnacleClient` could also use `PS3838_LOGIN`, `PS3838_PASSWORD` environment variables.
+It is also possible to change default `PS3838_API_BASE_URL` from https://api.ps3838.com/ to a different Pinnacle mirror
 
----
+> Pinnacle888 is yet another one popular Pinnacle mirror, and its documentation and endpoints are identical to the PS3838  
+>
+> Docs: https://pinny888.github.io/  
+>
+> API Base URL: https://api.pinnacle888.com  
 
 ### 2. Check PinnacleClient Balance
 
 Quickly check your account balance by calling the API:
 
 ```python
-from ps3838api.api import PinnacleClient
+from ps3838api.api.client import PinnacleClient
 
-client = PinnacleClient()  # reads PS3838_LOGIN / PS3838_PASSWORD (and optional base URL)
+client = PinnacleClient()
 balance = client.get_client_balance()
 print("PinnacleClient Balance:", balance)
 ```
@@ -72,79 +77,33 @@ Expected output:
 }
 ```
 
-## 🎯 Retrieve Event and Place Bet
+## 🎯 Retrieve Events and Fixtures Place Bet
 
 Find and use events with ease:
 
 ```python
-from ps3838api.api import PinnacleClient
-from ps3838api.models.sports import SOCCER_SPORT_ID
-
-league = 'Russia - Cup'
-home = 'Lokomotiv Moscow'
-away = 'Akhmat Grozny'
-
-client = PinnacleClient()
-fixtures = client.get_fixtures(sport_id=SOCCER_SPORT_ID)
+fixtures = client.get_fixtures()
+odds = client.get_odds()
 ```
 
-Match the event using utility functions:
+Using fixtures and odds, find events according to the method interfaces and [official Pinnacle API Response schemas](https://ps3838api.github.io/docs/#tag/Odds/operation/Odds_Straight_V3_Get)
 
-```python
-from ps3838api.matching import magic_find_event
-
-event = magic_find_event(fixtures, league, home, away)
-print(event)
-# Example output: {'eventId': 1607937909, 'leagueId': 2409}
-```
-
-Make sure to validate the event:
-
-```python
-assert isinstance(event, dict)  # also could be Failure
-```
-
-Filter odds for the selected event:
-
-```python
-from ps3838api.logic import filter_odds
-
-odds_response = client.get_odds()
-odds_eventV3 = filter_odds(odds_response, event_id=event['eventId'])
-```
-
-Select the best total line:
-
-```python
-from ps3838api.totals import get_best_total_line
-
-total_line = get_best_total_line(odds_eventV3)
-print(total_line)
-```
-
-An example response:
-
-```json
-{
-    "points": 4.5,
-    "over": 2.08,
-    "under": 1.775,
-    "lineId": 3058623866,
-    "max": 3750.0
-}
-```
+> note: in a future version the package will include `magic_find_event` function which would make finding events more 
+straightforward 
 
 ## 💸 Place a Bet
 
 Once you have your event and total line, place your bet:
 
 ```python
-assert isinstance(event, dict)  # also could be Failure
-assert total_line is not None 
+event_id: int
+line_id: int
+alt_line_id: int | None 
+total_line_points: float
 
 stake_usdt = 1.0
 
-place_bet_response = client.place_straigh_bet(
+place_bet_response = client.place_straight_bet(
     stake=stake_usdt,
     event_id=event['eventId'],
     bet_type='TOTAL_POINTS',
@@ -162,12 +121,6 @@ You can also check your bet status:
 bets = client.get_bets(unique_request_ids=[place_bet_response['uniqueRequestId']])
 # Verify the bet status
 ```
-
-## ⚠️ Known Issues
-
-- **Logging:** Not implemented yet.
-- **Testing:** Still missing.
-- **CI/CD:** No GitHub CI/CD integration at the moment.
 
 ## 🛠️ Local Installation
 

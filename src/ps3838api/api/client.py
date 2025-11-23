@@ -260,7 +260,7 @@ class PinnacleClient:
 
         return cast(LineResponse, self._get(endpoint, params))
 
-    def place_straigh_bet(
+    def place_straight_bet(
         self,
         *,
         stake: float,
