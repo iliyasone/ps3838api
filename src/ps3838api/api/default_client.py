@@ -4,7 +4,27 @@ Legacy helper functions that use a shared default :class:`Client`.
 
 from datetime import datetime
 from typing import Any, Literal
-from warnings import deprecated
+import sys
+import warnings
+
+if sys.version_info >= (3, 13):
+    from warnings import deprecated
+else:
+    def deprecated(reason: str):
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                warnings.warn(
+                    f"{func.__name__} is deprecated: {reason}",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                return func(*args, **kwargs)
+            wrapper.__name__ = func.__name__
+            wrapper.__doc__ = func.__doc__
+            wrapper.__dict__.update(func.__dict__)
+            return wrapper
+        return decorator
+
 
 from ps3838api.models.bets import (
     BetType,
@@ -29,6 +49,7 @@ from ps3838api.models.sports import SOCCER_SPORT_ID
 from .client import PinnacleClient
 
 _default_client: PinnacleClient | None = None
+
 
 
 def _get_default_client() -> PinnacleClient:
