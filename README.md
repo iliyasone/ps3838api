@@ -14,7 +14,7 @@ If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach 
 
 ### `ps3838api.api` — Minimalist, Typed API Wrapper
 
-- **Client-First:** Instantiate `ps3838api.api.Client` with credentials supplied via environment variables and call methods directly. Legacy module-level helpers still work for backwards compatibility, but marked as deprecated.
+- **PinnacleClient-First:** Instantiate `ps3838api.api.client.PinnacleClient` with credentials supplied via environment variables and call methods directly. Legacy module-level helpers still work for backwards compatibility, but marked as deprecated.
 - **Type-Safe:** Responses are structured using precise `TypedDict` definitions based directly on the official docs.
 - **Clean Data:** Say goodbye to messy, undocumented JSON blobs.
 - **Lightweight:** No bloated ORMs or clunky third-party wrappers — just clean, readable code.
@@ -49,16 +49,16 @@ os.environ["PS3838_API_BASE_URL"] = "https://api.ps3838.com"
 
 ---
 
-### 2. Check Client Balance
+### 2. Check PinnacleClient Balance
 
 Quickly check your account balance by calling the API:
 
 ```python
-from ps3838api.api import Client
+from ps3838api.api import PinnacleClient
 
-client = Client()  # reads PS3838_LOGIN / PS3838_PASSWORD (and optional base URL)
+client = PinnacleClient()  # reads PS3838_LOGIN / PS3838_PASSWORD (and optional base URL)
 balance = client.get_client_balance()
-print("Client Balance:", balance)
+print("PinnacleClient Balance:", balance)
 ```
 
 Expected output:
@@ -77,14 +77,14 @@ Expected output:
 Find and use events with ease:
 
 ```python
-from ps3838api.api import Client
+from ps3838api.api import PinnacleClient
 from ps3838api.models.sports import SOCCER_SPORT_ID
 
 league = 'Russia - Cup'
 home = 'Lokomotiv Moscow'
 away = 'Akhmat Grozny'
 
-client = Client()
+client = PinnacleClient()
 fixtures = client.get_fixtures(sport_id=SOCCER_SPORT_ID)
 ```
 

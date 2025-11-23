@@ -128,7 +128,7 @@ SIMULATED_GAMES_SPORT_ID = Sport.SIMULATED_GAMES_SPORT_ID
 SUMO_SPORT_ID = Sport.SUMO_SPORT_ID
 
 
-SPORT_ID_TO_NAME: dict[int, str] = {
+SPORT_ID_TO_NAME: dict[Sport, str] = {
     Sport.BADMINTON_SPORT_ID: "Badminton",
     Sport.BANDY_SPORT_ID: "Bandy",
     Sport.BASEBALL_SPORT_ID: "Baseball",

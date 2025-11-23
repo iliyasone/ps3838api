@@ -43,7 +43,7 @@ from ps3838api.models.sports import BASEBALL_SPORT_ID, SOCCER_SPORT_ID, Sport
 DEFAULT_API_BASE_URL = "https://api.ps3838.com"
 
 
-class Client:
+class PinnacleClient:
     """Stateful PS3838 API client backed by ``requests.Session``."""
 
     def __init__(
@@ -100,6 +100,8 @@ class Client:
                 match payload:
                     case {"code": str(code), "message": str(message)}:
                         raise AccessBlockedError(message) from exc
+                    case object():
+                        pass
 
             status_code = exc.response.status_code if exc.response else "Unknown"
             raise AccessBlockedError(status_code) from exc
@@ -369,4 +371,4 @@ class Client:
         return response.content
 
 
-__all__ = ["Client", "DEFAULT_API_BASE_URL"]
+__all__ = ["PinnacleClient", "DEFAULT_API_BASE_URL"]

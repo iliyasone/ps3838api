@@ -1,6 +1,10 @@
+import json
+from typing import Final, Literal
+
 from rapidfuzz import fuzz
-from ps3838api import ROOT_DIR
-from ps3838api.logic import normalize_to_set
+
+from ps3838api import ROOT_MODULE_DIR
+from ps3838api.utils.ops import normalize_to_set
 from ps3838api.models.event import (
     Failure,
     MatchedLeague,
@@ -13,18 +17,16 @@ from ps3838api.models.event import (
 
 import ps3838api.api as ps
 
-import json
-from typing import Final, Literal
 
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
 from ps3838api.models.tank import EventInfo
 
 
-with open(ROOT_DIR / "out/matched_leagues.json") as file:
+with open(ROOT_MODULE_DIR / "out/matched_leagues.json") as file:
     MATCHED_LEAGUES: Final[list[MatchedLeague]] = json.load(file)
 
-with open(ROOT_DIR / "out/ps3838_leagues.json") as file:
-    ALL_LEAGUES: Final[list[ps.LeagueV3]] = json.load(file)['leagues']
+with open(ROOT_MODULE_DIR / "out/ps3838_leagues.json") as file:
+    ALL_LEAGUES: Final[list[ps.LeagueV3]] = json.load(file)["leagues"]
 
 
 def match_league(
@@ -52,13 +54,17 @@ def find_league_by_name(
 
 
 def find_event_in_league(
-    league_data: FixturesLeagueV3, league: str, home: str, away: str, live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH"
+    league_data: FixturesLeagueV3,
+    league: str,
+    home: str,
+    away: str,
+    live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH",
 ) -> EventInfo | NoSuchEvent:
     """
-    If live_status is "LIVE", search only for events with a parentId. 
+    If live_status is "LIVE", search only for events with a parentId.
     This does not necessarily mean the event is live — it could also be a corners subevent.
 
-    If live_status is "PREMATCH", search only for events without a parentId. 
+    If live_status is "PREMATCH", search only for events without a parentId.
     Some prematch events (e.g. corners leagues) will be skipped.
 
     Scans `league_data["events"]` for the best fuzzy match to `home` and `away`.
@@ -69,7 +75,7 @@ def find_event_in_league(
     best_event = None
     best_sum_score = 0
     for event in league_data["events"]:
-        match (live_status, 'parentId' in event):
+        match (live_status, "parentId" in event):
             case None, _:
                 pass
             case "PREMATCH", False:
@@ -95,20 +101,24 @@ def find_event_in_league(
 
 
 def magic_find_event(
-    fixtures: FixturesResponse, league: str, home: str, away: str, live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH"
+    fixtures: FixturesResponse,
+    league: str,
+    home: str,
+    away: str,
+    live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH",
 ) -> EventInfo | Failure:
     """
     1. Tries to find league by normalizng names;
     2. If don't, search for a league matching
     3. Then `find_event_in_league`
-    
-    If live_status is "LIVE", search only for events with a parentId. 
+
+    If live_status is "LIVE", search only for events with a parentId.
     This does not necessarily mean the event is live — it could also be a corners subevent.
 
-    If live_status is "PREMATCH", search only for events without a parentId. 
+    If live_status is "PREMATCH", search only for events without a parentId.
     Some prematch events (e.g. corners leagues) will be skipped.
-    
-    If live_status is None, search for any.  
+
+    If live_status is None, search for any.
 
     """
 

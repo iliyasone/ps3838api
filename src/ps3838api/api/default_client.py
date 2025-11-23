@@ -26,24 +26,24 @@ from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
 from ps3838api.models.sports import SOCCER_SPORT_ID
 
-from .client import Client
+from .client import PinnacleClient
 
-_default_client: Client | None = None
+_default_client: PinnacleClient | None = None
 
 
-def _get_default_client() -> Client:
+def _get_default_client() -> PinnacleClient:
     global _default_client
     if _default_client is None:
-        _default_client = Client()
+        _default_client = PinnacleClient()
     return _default_client
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_client_balance() -> BalanceData:
     return _get_default_client().get_client_balance()
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_periods(sport_id: int | None = None) -> list[PeriodData]:
     return _get_default_client().get_periods(sport_id=sport_id)
 
@@ -53,12 +53,12 @@ def get_sports() -> Any:
     return _get_default_client().get_sports()
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_leagues(sport_id: int | None = None) -> list[LeagueV3]:
     return _get_default_client().get_leagues(sport_id=sport_id)
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_fixtures(
     sport_id: int | None = None,
     league_ids: list[int] | None = None,
@@ -77,7 +77,7 @@ def get_fixtures(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_odds(
     sport_id: int | None = None,
     is_special: bool = False,
@@ -98,7 +98,7 @@ def get_odds(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_special_fixtures(
     sport_id: int | None = None,
     league_ids: list[int] | None = None,
@@ -109,7 +109,7 @@ def get_special_fixtures(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_line(
     league_id: int,
     event_id: int,
@@ -134,7 +134,7 @@ def get_line(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def place_straigh_bet(
     *,
     stake: float,
@@ -176,7 +176,7 @@ def place_straigh_bet(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_bets(
     bet_ids: list[int] | None = None,
     unique_request_ids: list[str] | None = None,
@@ -187,7 +187,7 @@ def get_bets(
     )
 
 
-@deprecated("Use `ps3838api.client.Client` base methods")
+@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_betting_status() -> BettingStatusResponse:
     return _get_default_client().get_betting_status()
 
