@@ -21,6 +21,12 @@ import ps3838api.api as ps
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
 from ps3838api.models.tank import EventInfo
 
+import warnings
+
+warnings.warn(
+    f"{__name__} is experimental and its interface is not stable yet.",
+    FutureWarning,
+)
 
 with open(ROOT_MODULE_DIR / "out/matched_leagues.json") as file:
     MATCHED_LEAGUES: Final[list[MatchedLeague]] = json.load(file)

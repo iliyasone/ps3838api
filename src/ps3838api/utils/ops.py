@@ -3,6 +3,13 @@ from ps3838api.models.fixtures import FixtureV3, FixturesLeagueV3, FixturesRespo
 from ps3838api.models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
 from ps3838api.models.tank import EventInfo
 
+import warnings
+
+warnings.warn(
+    f"{__name__} is experimental, incomplete, and may change in future versions.",
+    UserWarning,
+)
+
 
 def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
     """
@@ -111,11 +118,12 @@ def find_league_in_fixtures(
     else:
         return NoSuchLeagueFixtures(league)
 
+
 def find_fixtureV3_in_league(leagueV3: FixturesLeagueV3, event_id: int) -> FixtureV3:
-    for eventV3 in leagueV3['events']:
+    for eventV3 in leagueV3["events"]:
         if eventV3["id"] == event_id:
             return eventV3
-    raise ValueError('No such event')
+    raise ValueError("No such event")
 
 
 def filter_odds(

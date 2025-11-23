@@ -1,6 +1,13 @@
 from typing import cast
 from ps3838api.models.odds import OddsTotalV3, OddsEventV3
 
+import warnings
+
+warnings.warn(
+    f"{__name__} is experimental and its interface is not stable yet.",
+    FutureWarning,
+)
+
 
 class OddsTotal(OddsTotalV3):
     """Has line id"""
