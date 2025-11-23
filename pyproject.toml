@@ -36,6 +36,7 @@ test = [
 ]
 lint = [
     "flake8>=7.3.0",
+    "pyright>=1.1.407",
 ]
 dev = [
     "ipykernel>=7.1.0",
