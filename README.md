@@ -27,7 +27,7 @@ If you don’t have access to the PS3838 API (Pinnacle) yet, feel free to reach 
 
 ## 🚀 Setup
 
-> You can also check out the [📓 examples.ipynb](https://github.com/iliyasone/ps3838api/blob/release/0.1.0/examples/examples.ipynb) for a quick start!
+> You can also check out the [📓 examples.ipynb](https://github.com/iliyasone/ps3838api/blob/release/1.0.0/examples/examples.ipynb) for a quick start!
 
 This project has been created and tested on the Python 3.13.7, however it should work also on Python>=3.12
 
