@@ -15,7 +15,7 @@ else:
         def decorator(func):  # type: ignore
             def wrapper(*args, **kwargs):  # type: ignore
                 warnings.warn(
-                    f"{func.__name__} is deprecated: {reason}",
+                    f"{func.__name__} is deprecated: {reason}", # type: ignore
                     DeprecationWarning,
                     stacklevel=2,
                 )
