@@ -8,19 +8,22 @@ encapsulating session management, credentials, and error handling.
 import base64
 import os
 import uuid
-from datetime import datetime
-from typing import Any, Literal, cast
+from datetime import datetime, timedelta, timezone
+from typing import Any, Literal, cast, overload
 
 import requests
 from requests import Response, Session
 
 from ps3838api.models.bets import (
+    BetList,
+    BetStatus,
     BetType,
     BetsResponse,
     FillType,
     OddsFormat,
     PlaceStraightBetResponse,
     Side,
+    SortDir,
     Team,
 )
 from ps3838api.models.client import (
@@ -318,22 +321,165 @@ class PinnacleClient:
         data = self._post(endpoint, params)
         return cast(PlaceStraightBetResponse, data)
 
+    @overload
     def get_bets(
         self,
+        *,
+        unique_request_ids: list[str],
+    ) -> "BetsResponse":
+        """Get bets by unique request IDs.
+
+        A comma separated list of `uniqueRequestId` from the place bet request.
+        If specified, it's highest priority, all other parameters are ignored.
+        Maximum is 10 ids. If client has bet id, preferred way is to use `betIds`
+        query parameter, you can use `uniqueRequestIds` when you do not have bet id.
+
+        There are 2 cases when client may not have a bet id:
+
+        1. When you bet on live event with live delay, place bet response in that
+           case does not return bet id, so client can query bet status by
+           `uniqueRequestIds`.
+        2. In case of any network issues when client is not sure what happened
+           with his place bet request. Empty response means that the bet was not
+           placed.
+
+        Note that there is a restriction: querying by uniqueRequestIds is supported
+        for straight and special bets and only up to 30 min from the moment the
+        bet was placed.
+
+        Args:
+            unique_request_ids: List of unique request IDs. Maximum is 10 ids.
+
+        Returns:
+            BetsResponse containing matching bets.
+        """
+        ...
+
+    @overload
+    def get_bets(
+        self,
+        *,
+        bet_ids: list[int],
+    ) -> "BetsResponse":
+        """Get bets by bet IDs.
+
+        A comma separated list of bet ids. When betids is submitted, no other
+        parameter is necessary. Maximum is 100 ids. Works for all non settled
+        bets and all bets settled in the last 30 days.
+
+        Args:
+            bet_ids: List of bet IDs. Maximum is 100 ids.
+
+        Returns:
+            BetsResponse containing matching bets.
+        """
+        ...
+
+    @overload
+    def get_bets(
+        self,
+        *,
+        betlist: BetList,
+        from_date: datetime,
+        to_date: datetime,
+        bet_statuses: list[BetStatus] | None = ...,
+        sort_dir: SortDir = ...,
+        page_size: int = ...,
+        from_record: int = ...,
+        bet_type: list[BetType] | None = ...,
+    ) -> "BetsResponse":
+        """Get bets by date range and bet list type.
+
+        Args:
+            betlist: Type of bet list to return (SETTLED, RUNNING, ALL).
+            from_date: Start date of the requested period. Required when betlist
+                parameter is submitted. Start date can be up to 30 days in the past.
+                Expected format is ISO8601 - can be set to just date or date and time.
+            to_date: End date of the requested period. Required when betlist
+                parameter is submitted. Expected format is ISO8601 - can be set to
+                just date or date and time. toDate value is exclusive, meaning it
+                cannot be equal to fromDate.
+            bet_statuses: Type of bet statuses to return (WON, LOSE, CANCELLED,
+                REFUNDED, NOT_ACCEPTED, ACCEPTED, PENDING_ACCEPTANCE). This works
+                only in conjunction with betlist, as additional filter.
+            sort_dir: Sort direction by postedAt/settledAt (ASC, DESC). Respected
+                only when querying by date range. Defaults to ASC.
+            page_size: Page size. Max is 1000. Respected only when querying by date
+                range. Defaults to 1000.
+            from_record: Starting record (inclusive) of the result. Respected only
+                when querying by date range. To fetch next page set it to toRecord+1.
+                Defaults to 0.
+            bet_type: A comma separated list of bet types (SPREAD, MONEYLINE,
+                TOTAL_POINTS, TEAM_TOTAL_POINTS, SPECIAL, PARLAY, TEASER, MANUAL).
+
+        Returns:
+            BetsResponse containing matching bets.
+        """
+        ...
+
+    def get_bets(
+        self,
+        *,
         bet_ids: list[int] | None = None,
         unique_request_ids: list[str] | None = None,
-        since: int | None = None,
-    ) -> BetsResponse:
+        betlist: BetList | None = None,
+        bet_statuses: list[BetStatus] | None = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
+        sort_dir: SortDir = "ASC",
+        page_size: int = 1000,
+        from_record: int = 0,
+        bet_type: list[BetType] | None = None,
+    ) -> "BetsResponse":
         endpoint = "/v3/bets"
         params: dict[str, Any] = {}
-        if bet_ids:
-            params["betIds"] = ",".join(map(str, bet_ids))
-        if unique_request_ids:
-            params["uniqueRequestIds"] = ",".join(unique_request_ids)
-        if since is not None:
-            params["since"] = since
 
-        return cast(BetsResponse, self._get(endpoint, params))
+        if unique_request_ids is not None:
+            if not unique_request_ids:
+                raise ValueError("uniqueRequestIds must not be empty")
+            if len(unique_request_ids) > 10:
+                raise ValueError("uniqueRequestIds max is 10")
+            params["uniqueRequestIds"] = ",".join(unique_request_ids)
+            return cast("BetsResponse", self._get(endpoint, params))
+
+        if bet_ids is not None:
+            if not bet_ids:
+                raise ValueError("betIds must not be empty")
+            if len(bet_ids) > 100:
+                raise ValueError("betIds max is 100")
+            params["betIds"] = ",".join(map(str, bet_ids))
+            return cast("BetsResponse", self._get(endpoint, params))
+
+        if betlist is None:
+            raise ValueError(
+                "betlist is required when betIds and uniqueRequestIds are not provided"
+            )
+        if from_date is None or to_date is None:
+            raise ValueError(
+                "fromDate and toDate are required when betlist is submitted"
+            )
+        if to_date <= from_date:
+            raise ValueError("toDate must be exclusive and greater than fromDate")
+        if from_date < datetime.now(timezone.utc) - timedelta(days=30):
+            raise ValueError("fromDate cannot be more than 30 days in the past")
+        if not (1 <= page_size <= 1000):
+            raise ValueError("pageSize must be between 1 and 1000")
+        if from_record < 0:
+            raise ValueError("fromRecord must be >= 0")
+
+        params["betlist"] = betlist
+        params["fromDate"] = from_date.isoformat()
+        params["toDate"] = to_date.isoformat()
+        params["sortDir"] = sort_dir
+        params["pageSize"] = page_size
+        params["fromRecord"] = from_record
+
+        if bet_statuses:
+            params["betStatuses"] = ",".join(bet_statuses)
+        if bet_type:
+            params["betType"] = ",".join(bet_type)
+
+        return cast("BetsResponse", self._get(endpoint, params))
 
     def get_betting_status(self) -> BettingStatusResponse:
         endpoint = "/v1/bets/betting-status"

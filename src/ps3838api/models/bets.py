@@ -23,6 +23,10 @@ v1/bets/place'
 type Team = Literal["TEAM1", "TEAM2", "DRAW"]
 type Side = Literal["OVER", "UNDER"]
 
+type BetList = Literal["SETTLED", "RUNNING", "ALL"]
+
+type SortDir = Literal["ASC", "DESC"]
+
 type BetStatus = Literal[
     "ACCEPTED",
     "CANCELLED",
