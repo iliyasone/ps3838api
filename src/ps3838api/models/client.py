@@ -4,7 +4,7 @@ from typing import Literal, NotRequired, TypedDict
 class BalanceData(TypedDict):
     availableBalance: float
     outstandingTransactions: float
-    givenCredit: float
+    givenCredit: NotRequired[float]
     currency: str
 
 

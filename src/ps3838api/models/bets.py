@@ -243,8 +243,8 @@ class BetsResponse(TypedDict):
     pageSize: int
     fromRecord: int
     toRecord: int
-    straightBets: list[StraightBetV3]
-    parlayBets: list[ParlayBetV2]
-    teaserBets: list[TeaserBet]
-    specialBets: list[SpecialBetV3]
-    manualBets: list[ManualBet]
+    straightBets: NotRequired[list[StraightBetV3]]
+    parlayBets: NotRequired[list[ParlayBetV2]]
+    teaserBets: NotRequired[list[TeaserBet]]
+    specialBets: NotRequired[list[SpecialBetV3]]
+    manualBets: NotRequired[list[ManualBet]]
