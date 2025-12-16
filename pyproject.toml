@@ -21,7 +21,7 @@ license = {text = "MIT"}
 name = "ps3838api"
 readme = "README.md"
 requires-python = ">=3.12"
-version = "1.0.3"
+version = "1.0.4"
 
 [project.urls]
 Homepage = "https://github.com/iliyasone/ps3838api"

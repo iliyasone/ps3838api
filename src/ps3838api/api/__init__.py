@@ -1,4 +1,3 @@
-# type: ignore[RereportDeprecated]
 """
 PACKAGE: ps3838api.api
 
@@ -11,18 +10,17 @@ from ps3838api.models.sports import BASEBALL_SPORT_ID, SOCCER_SPORT_ID
 
 from .client import DEFAULT_API_BASE_URL, PinnacleClient
 from .default_client import (
-    export_my_bets,
-    get_bets,
-    get_betting_status,
-    get_client_balance,
-    get_fixtures,
-    get_leagues,
-    get_line,
-    get_odds,
-    get_periods,
-    get_special_fixtures,
-    get_sports,
-    place_straigh_bet,
+    export_my_bets,  # pyright: ignore[reportDeprecated]
+    get_betting_status,  # pyright: ignore[reportDeprecated]
+    get_client_balance,  # pyright: ignore[reportDeprecated]
+    get_fixtures,  # pyright: ignore[reportDeprecated]
+    get_leagues,  # pyright: ignore[reportDeprecated]
+    get_line,  # pyright: ignore[reportDeprecated]
+    get_odds,  # pyright: ignore[reportDeprecated]
+    get_periods,  # pyright: ignore[reportDeprecated]
+    get_special_fixtures,  # pyright: ignore[reportDeprecated]
+    get_sports,  # pyright: ignore[reportDeprecated]
+    place_straigh_bet,  # pyright: ignore[reportDeprecated]
 )
 
 __all__ = [
@@ -39,7 +37,6 @@ __all__ = [
     "get_special_fixtures",
     "get_line",
     "place_straigh_bet",
-    "get_bets",
     "get_betting_status",
     "BalanceData",  # legacy, was in ps3838api.api
     "PeriodData",  # was in ps3838api.api
