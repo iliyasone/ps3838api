@@ -3,9 +3,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ps3838api import ROOT_MODULE_DIR
-
 from rapidfuzz import fuzz, process
+
+from ps3838api import ROOT_MODULE_DIR
 
 
 # Your threshold-based fuzzy function
@@ -48,9 +48,7 @@ def main():
     for betsapi_league in betsapi_leagues:
         # RapidFuzz: find the single best match
         # extractOne returns a tuple: (best_match_string, score, index)
-        best_match = process.extractOne(
-            betsapi_league, ps_names, scorer=fuzz.token_sort_ratio
-        )
+        best_match = process.extractOne(betsapi_league, ps_names, scorer=fuzz.token_sort_ratio)
 
         if best_match is not None:
             ps_name, score, _ = best_match

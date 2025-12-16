@@ -35,6 +35,7 @@ class PS3838APIError(ResponseError):
 
 class LogicError(BasePS3838Error):
     """Raised when there is a violation of client-side logic or input invariant."""
+
     pass
 
 

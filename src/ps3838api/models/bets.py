@@ -1,4 +1,4 @@
-from typing import TypedDict, NotRequired, Literal
+from typing import Literal, NotRequired, TypedDict
 
 type OddsFormat = Literal["AMERICAN", "DECIMAL", "HONGKONG", "INDONESIAN", "MALAY"]
 
@@ -172,9 +172,6 @@ class PlaceStraightBetResponse(TypedDict):
         ]
     ]
     straightBet: NotRequired[StraightBet]
-
-
-from typing import TypedDict, NotRequired, Literal
 
 
 class CancellationDetailsV3(TypedDict):

@@ -124,12 +124,20 @@ bets = client.get_bets(unique_request_ids=[place_bet_response['uniqueRequestId']
 
 ## 🛠️ Local Installation
 
-To install the library locally, run the following commands:
+To install the library locally, install `uv` and run the following commands:
 
 ```bash
 git clone https://github.com/iliyasone/ps3838api.git
 cd ps3838api
-uv sync --group test --group lint --group dev
+uv sync --all-groups
+```
+
+## Run checkers
+
+```bash
+uv run ruff check
+uv run ruff format
+uv run pyright
 ```
 
 Happy coding

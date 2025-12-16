@@ -2,10 +2,10 @@
 Legacy helper functions that use a shared default :class:`Client`.
 """
 
-from datetime import datetime
-from typing import Any, Literal
 import sys
 import warnings
+from datetime import datetime
+from typing import Any, Literal
 
 if sys.version_info >= (3, 13):
     from warnings import deprecated
@@ -15,7 +15,7 @@ else:
         def decorator(func):  # type: ignore
             def wrapper(*args, **kwargs):  # type: ignore
                 warnings.warn(
-                    f"{func.__name__} is deprecated: {reason}", # type: ignore
+                    f"{func.__name__} is deprecated: {reason}",  # type: ignore
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -29,21 +29,8 @@ else:
         return decorator  # type: ignore
 
 
-from ps3838api.models.bets import (
-    BetType,
-    BetsResponse,
-    FillType,
-    OddsFormat,
-    PlaceStraightBetResponse,
-    Side,
-    Team,
-)
-from ps3838api.models.client import (
-    BalanceData,
-    BettingStatusResponse,
-    LeagueV3,
-    PeriodData,
-)
+from ps3838api.models.bets import BetType, FillType, OddsFormat, PlaceStraightBetResponse, Side, Team
+from ps3838api.models.client import BalanceData, BettingStatusResponse, LeagueV3, PeriodData
 from ps3838api.models.fixtures import FixturesResponse
 from ps3838api.models.lines import LineResponse
 from ps3838api.models.odds import OddsResponse
@@ -55,7 +42,7 @@ _default_client: PinnacleClient | None = None
 
 
 def _get_default_client() -> PinnacleClient:
-    global _default_client
+    global _default_client  # noqa: PLW0603
     if _default_client is None:
         _default_client = PinnacleClient()
     return _default_client
@@ -200,17 +187,6 @@ def place_straigh_bet(
 
 
 @deprecated("Use `ps3838api.client.PinnacleClient` base methods")
-def get_bets(
-    bet_ids: list[int] | None = None,
-    unique_request_ids: list[str] | None = None,
-    since: int | None = None,
-) -> BetsResponse:
-    return _get_default_client().get_bets(
-        bet_ids=bet_ids, unique_request_ids=unique_request_ids, since=since
-    )
-
-
-@deprecated("Use `ps3838api.client.PinnacleClient` base methods")
 def get_betting_status() -> BettingStatusResponse:
     return _get_default_client().get_betting_status()
 
@@ -250,7 +226,6 @@ __all__ = [
     "get_special_fixtures",
     "get_line",
     "place_straigh_bet",
-    "get_bets",
     "get_betting_status",
     "export_my_bets",
 ]

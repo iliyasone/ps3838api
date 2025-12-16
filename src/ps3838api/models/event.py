@@ -27,6 +27,7 @@ class NoSuchLeagueMatching(NoSuchLeague):
 class NoSuchLeagueFixtures(NoSuchLeague):
     pass
 
+
 @dataclass
 class WrongLeague(NoSuchLeague):
     pass
@@ -38,9 +39,11 @@ class NoSuchEvent:
     home: str
     away: str
 
+
 @dataclass
 class EventTooFarInFuture(NoSuchEvent):
     pass
+
 
 type Failure = NoSuchLeague | NoSuchEvent
 
@@ -53,5 +56,6 @@ type Failure = NoSuchLeague | NoSuchEvent
 @dataclass
 class NoSuchOddsAvailable:
     event_id: int
+
 
 type NoResult = NoSuchLeague | NoSuchEvent | NoSuchOddsAvailable

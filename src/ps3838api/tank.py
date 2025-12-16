@@ -13,25 +13,21 @@ like odds.  If a full history is ever required you can reconstruct it
 from those files.
 """
 
+import json
+import logging
 import warnings
+from pathlib import Path
+from time import time
+
+from ps3838api.api.client import PinnacleClient
+from ps3838api.matching import MATCHED_LEAGUES
+from ps3838api.models.fixtures import FixturesResponse
+from ps3838api.utils.ops import merge_fixtures
 
 warnings.warn(
     f"{__name__} is experimental, incomplete, and may change in future versions.",
     UserWarning,
 )
-
-
-import json
-import logging
-from pathlib import Path
-from time import time
-
-from ps3838api.api.client import PinnacleClient
-from ps3838api.utils.ops import (
-    merge_fixtures,
-)
-from ps3838api.matching import MATCHED_LEAGUES
-from ps3838api.models.fixtures import FixturesResponse
 
 
 SNAPSHOT_INTERVAL = 60

@@ -1,46 +1,106 @@
 [build-system]
-requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61"]
 
 [project]
-name = "ps3838api"
-version = "1.0.2"
 authors = [
-  { name = "Ilias Dzhabbarov", email = "ilias.dzabbarov@gmail.com" }
+  {name = "Ilias Dzhabbarov", email = "ilias.dzabbarov@gmail.com"},
 ]
-description = "A lightweight Python library to interact with the Pinnacle API (PS3838, Pinnacle888 etc.) and place bets."
-readme = "README.md"
-keywords = ["ps3838", "sports betting", "api", "pinnacle", "odds", "python"]
-requires-python = ">=3.12"
-license = { text = "MIT" }
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent"
+  "Operating System :: OS Independent",
 ]
 dependencies = [
-    "rapidfuzz>=3.14.3",
-    "requests>=2.32.5",
+  "rapidfuzz>=3.14.3",
+  "requests>=2.32.5",
 ]
+description = "A lightweight Python library to interact with the Pinnacle API (PS3838, Pinnacle888 etc.) and place bets."
+keywords = ["ps3838", "sports betting", "api", "pinnacle", "odds", "python"]
+license = {text = "MIT"}
+name = "ps3838api"
+readme = "README.md"
+requires-python = ">=3.12"
+version = "1.0.3"
 
 [project.urls]
 Homepage = "https://github.com/iliyasone/ps3838api"
 Issues = "https://github.com/iliyasone/ps3838api/issues"
 
+[tool.pyright]
+typeCheckingMode = "strict"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.ruff]
+extend-exclude = ["*.ipynb", "**/_version.py", "**/dbx_queries.py"]
+indent-width = 4
+line-length = 110
+
+[tool.ruff.format]
+docstring-code-format = true
+exclude = []
+
+[tool.ruff.lint]
+exclude = []
+fixable = ["I"] # Explicitly set automatic fixes allowed from ruff
+ignore = [
+  "D", # ignore all docstring errors
+  "D202", # no-blank-line-after-function (looks stupid)
+  "D413", # blank-line-after-last-section
+  "E402", # Allow Module level import not at top of file
+  "D105", # Allow missing docstring in magic methods
+  "D107", # Allow missing docstring in '__init__'
+  "PLC0415", # Allow Module level import not at top of file
+  "PLR0913", # Skip too many arguments rules (`PLR0913`).
+  "PLR2004", # We ignore magic value errors
+  "C901",
+  "PLR0912",
+  "PLR0915",
+  "PLW2901",
+  "PLW0120",
+]
+select = [
+  "E", # pycodestyle checks conformity to style conventions in PEP 8. https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+  "PL", # pylint is a static code analyzer that checks for errors, code smells and offer fix suggestions. Pylint: https://docs.astral.sh/ruff/rules/#pylint-pl
+  "F", # pyflakes parses and analyzes source code to detects errors. It detects fewer issues than pylint but faster. https://docs.astral.sh/ruff/rules/#pyflakes-f
+  "I", # isort sorts imports alphabetically and groups them into relevant sections. https://docs.astral.sh/ruff/rules/#isort-i
+  "D", # pydocstyle checks docstrings compliance as per convention. https://docs.astral.sh/ruff/rules/#pydocstyle-d
+  "C90", # checks Mccabe cyclomatic complexity is under expected measure. https://en.wikipedia.org/wiki/Cyclomatic_complexity. https://docs.astral.sh/ruff/rules/#mccabe-c90
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*" = [
+  "D", # We ingore docstring related stuff. The testing code itself is typically not re-used in any way.
+  "PLR2004", # We ignore magic value errors because assert statements typically contain hard coded values.
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
+split-on-trailing-comma = false
+
 [dependency-groups]
-test = [
-    "pytest>=9.0.1",
+dev = [
+  "ipykernel>=7.1.0",
+  "python-dotenv>=1.2.1",
 ]
 lint = [
-    "flake8>=7.3.0",
-    "pyright>=1.1.407",
+  "pyright>=1.1.407",
+  "ruff>=0.14.9",
 ]
-dev = [
-    "ipykernel>=7.1.0",
-    "python-dotenv>=1.2.1",
+test = [
+  "pytest>=9.0.1",
 ]
-
-

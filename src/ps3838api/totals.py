@@ -1,7 +1,7 @@
-from typing import cast
-from ps3838api.models.odds import OddsTotalV3, OddsEventV3
-
 import warnings
+from typing import cast
+
+from ps3838api.models.odds import OddsEventV3, OddsTotalV3
 
 warnings.warn(
     f"{__name__} is experimental and its interface is not stable yet.",
@@ -55,9 +55,7 @@ def get_all_total_lines(
     return result
 
 
-def get_best_total_line(
-    odds: OddsEventV3, periods: list[int] = [0, 1]
-) -> OddsTotal | None:
+def get_best_total_line(odds: OddsEventV3, periods: list[int] = [0, 1]) -> OddsTotal | None:
     try:
         return min(get_all_total_lines(odds, periods=periods), key=calculate_margin)
     except Exception:

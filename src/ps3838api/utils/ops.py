@@ -1,9 +1,9 @@
+import warnings
+
 from ps3838api.models.event import NoSuchLeagueFixtures, NoSuchOddsAvailable
-from ps3838api.models.fixtures import FixtureV3, FixturesLeagueV3, FixturesResponse
+from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse, FixtureV3
 from ps3838api.models.odds import OddsEventV3, OddsLeagueV3, OddsResponse
 from ps3838api.models.tank import EventInfo
-
-import warnings
 
 warnings.warn(
     f"{__name__} is experimental, incomplete, and may change in future versions.",
@@ -26,9 +26,7 @@ def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
     Based on "How to get odds changes?" from https://ps3838api.github.io/FAQs.html
     """
     # Index the old leagues by their IDs
-    league_index: dict[int, OddsLeagueV3] = {
-        league["id"]: league for league in old.get("leagues", [])
-    }
+    league_index: dict[int, OddsLeagueV3] = {league["id"]: league for league in old.get("leagues", [])}
 
     # Loop through the new leagues
     for new_league in new.get("leagues", []):
@@ -56,9 +54,7 @@ def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
             old_event = old_event_index[eid]
 
             # Periods: build an index by 'number' from the old event
-            old_period_index = {
-                p["number"]: p for p in old_event.get("periods", []) if "number" in p
-            }
+            old_period_index = {p["number"]: p for p in old_event.get("periods", []) if "number" in p}
 
             # Take all the new event's periods and override or insert them by 'number'
             for new_period in new_event.get("periods", []):
@@ -89,9 +85,7 @@ def merge_odds_response(old: OddsResponse, new: OddsResponse) -> OddsResponse:
 
 
 def merge_fixtures(old: FixturesResponse, new: FixturesResponse) -> FixturesResponse:
-    league_index: dict[int, FixturesLeagueV3] = {
-        league["id"]: league for league in old.get("league", [])
-    }
+    league_index: dict[int, FixturesLeagueV3] = {league["id"]: league for league in old.get("league", [])}
 
     for new_league in new.get("league", []):
         lid = new_league["id"]
@@ -140,9 +134,7 @@ def filter_odds(
 
 
 def normalize_to_set(name: str) -> set[str]:
-    return set(
-        name.replace(" II", " 2").replace(" I", "").lower().replace("-", " ").split()
-    )
+    return set(name.replace(" II", " 2").replace(" I", "").lower().replace("-", " ").split())
 
 
 def find_event_by_id(fixtures: FixturesResponse, event: EventInfo) -> FixtureV3 | None:

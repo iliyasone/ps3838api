@@ -16,9 +16,9 @@ from requests import Response, Session
 
 from ps3838api.models.bets import (
     BetList,
+    BetsResponse,
     BetStatus,
     BetType,
-    BetsResponse,
     FillType,
     OddsFormat,
     PlaceStraightBetResponse,
@@ -26,12 +26,7 @@ from ps3838api.models.bets import (
     SortDir,
     Team,
 )
-from ps3838api.models.client import (
-    BalanceData,
-    BettingStatusResponse,
-    LeagueV3,
-    PeriodData,
-)
+from ps3838api.models.client import BalanceData, BettingStatusResponse, LeagueV3, PeriodData
 from ps3838api.models.errors import (
     AccessBlockedError,
     BaseballOnlyArgumentError,
@@ -451,13 +446,9 @@ class PinnacleClient:
             return cast("BetsResponse", self._get(endpoint, params))
 
         if betlist is None:
-            raise ValueError(
-                "betlist is required when betIds and uniqueRequestIds are not provided"
-            )
+            raise ValueError("betlist is required when betIds and uniqueRequestIds are not provided")
         if from_date is None or to_date is None:
-            raise ValueError(
-                "fromDate and toDate are required when betlist is submitted"
-            )
+            raise ValueError("fromDate and toDate are required when betlist is submitted")
         if to_date <= from_date:
             raise ValueError("toDate must be exclusive and greater than fromDate")
         if from_date < datetime.now(timezone.utc) - timedelta(days=30):

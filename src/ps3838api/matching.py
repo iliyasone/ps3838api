@@ -1,10 +1,11 @@
 import json
+import warnings
 from typing import Final, Literal
 
 from rapidfuzz import fuzz
 
+import ps3838api.api as ps
 from ps3838api import ROOT_MODULE_DIR
-from ps3838api.utils.ops import normalize_to_set
 from ps3838api.models.event import (
     Failure,
     MatchedLeague,
@@ -14,14 +15,9 @@ from ps3838api.models.event import (
     NoSuchLeagueMatching,
     WrongLeague,
 )
-
-import ps3838api.api as ps
-
-
 from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
 from ps3838api.models.tank import EventInfo
-
-import warnings
+from ps3838api.utils.ops import normalize_to_set
 
 warnings.warn(
     f"{__name__} is experimental and its interface is not stable yet.",
@@ -49,9 +45,7 @@ def match_league(
     return WrongLeague(league_betsapi)
 
 
-def find_league_by_name(
-    league: str, leagues: list[ps.LeagueV3] = ALL_LEAGUES
-) -> ps.LeagueV3 | NoSuchLeague:
+def find_league_by_name(league: str, leagues: list[ps.LeagueV3] = ALL_LEAGUES) -> ps.LeagueV3 | NoSuchLeague:
     normalized = normalize_to_set(league)
     for leagueV3 in leagues:
         if normalize_to_set(leagueV3["name"]) == normalized:

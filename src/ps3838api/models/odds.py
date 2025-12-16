@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TypedDict, Required, NotRequired
+
+from typing import NotRequired, Required, TypedDict
 
 
 # ─────────────────────────────────────────

@@ -1,4 +1,4 @@
-from typing import NotRequired, TypedDict, Literal
+from typing import Literal, NotRequired, TypedDict
 
 
 class BalanceData(TypedDict):
@@ -37,9 +37,7 @@ class LeagueV3(TypedDict):
 
 
 class BettingStatusResponse(TypedDict):
-    status: Literal[
-        "ALL_BETTING_ENABLED", "ALL_LIVE_BETTING_CLOSED", "ALL_BETTING_CLOSED"
-    ]
+    status: Literal["ALL_BETTING_ENABLED", "ALL_LIVE_BETTING_CLOSED", "ALL_BETTING_CLOSED"]
 
 
 __all__ = [
