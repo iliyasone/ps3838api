@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ps3838api"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
   { name = "Ilias Dzhabbarov", email = "ilias.dzabbarov@gmail.com" }
 ]

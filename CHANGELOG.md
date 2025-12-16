@@ -1,4 +1,8 @@
-**Version 1.0.0 – Client Architecture Release**
+# Version 1.0.2 - fixed `get_bets` method signature
+
+
+
+# Version 1.0.0 – Client Architecture Release**
 
 This release introduces a stable client-driven design that replaces the previous module-level API helpers. The new `PinnacleClient` serves as the central entry point for all interactions with the PS3838 (Pinnacle) API, providing clearer structure, improved reliability, and a foundation suitable for long-term maintenance.
 
