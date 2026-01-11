@@ -54,15 +54,16 @@ class PinnacleClient:
         session: Session | None = None,
     ) -> None:
         self.default_sport = default_sport
-        self._login = login or os.environ.get("PS3838_LOGIN")
-        self._password = password or os.environ.get("PS3838_PASSWORD")
+        self._login = login or os.environ.get("PS3838_LOGIN") or os.environ.get("PINNACLE_LOGIN")
+        self._password = password or os.environ.get("PS3838_PASSWORD") or os.environ.get("PINNACLE_PASSWORD")
         if not self._login or not self._password:
             raise ValueError(
-                "PS3838_LOGIN and PS3838_PASSWORD must be provided either via "
-                "Client() arguments or environment variables."
+                "login and password must be provided either via "
+                "Client() arguments or PINNACLE_LOGIN/PS3838_LOGIN and PINNACLE_PASSWORD/PS3838_PASSWORD"
+                "environment variables."
             )
 
-        env_base_url = os.environ.get("PS3838_API_BASE_URL")
+        env_base_url = os.environ.get("PS3838_API_BASE_URL") or os.environ.get("PINNACLE_API_BASE_URL")
         resolved_base_url = api_base_url or env_base_url or DEFAULT_API_BASE_URL
         self._base_url = resolved_base_url.rstrip("/")
 
