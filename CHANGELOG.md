@@ -1,4 +1,26 @@
-# Version 1.0.2 - fixed `get_bets` method signature
+# Version 1.1.0 - V4 API Support
+
+### Added
+
+* **V4 API Client** (`client.v4`): New `V4PinnacleClient` subclient for V4 endpoints.
+  * `get_odds()`: Fetch straight odds using V4 endpoint with enhanced team total support.
+  * `get_parlay_odds()`: Fetch parlay odds using V4 endpoint.
+* **V4 TypedDict Models**: Complete type definitions for V4 odds response structure.
+  * `OddsResponseV4`: Generic top-level response container.
+  * `OddsLeagueV4`, `OddsEventV4`, `OddsPeriodV4`: Nested event structures.
+  * `OddsSpreadV4`, `OddsMoneylineV4`, `OddsTotalV4`: Betting line types.
+  * `OddsTeamTotalsV4`, `OddsTeamTotalV4`: Team totals with array support for alternative lines.
+
+### Notes
+
+* V4 endpoints provide enhanced team total responses where `OddsTeamTotalsV4` returns arrays instead of single objects, enabling multiple alternative lines per team.
+* Access V4 client via `client.v4.get_odds()` instead of `client.get_odds()`.
+
+# Version 1.0.2
+
+### Fixed 
+
+* `get_bets` method signature
 
 
 

@@ -14,6 +14,7 @@ from typing import Any, Literal, cast, overload
 import requests
 from requests import Response, Session
 
+from ps3838api.api.v4client import V4PinnacleClient
 from ps3838api.models.bets import (
     BetList,
     BetsResponse,
@@ -53,6 +54,7 @@ class PinnacleClient:
         *,
         session: Session | None = None,
     ) -> None:
+        # prepare login and password
         self.default_sport = default_sport
         self._login = login or os.environ.get("PS3838_LOGIN") or os.environ.get("PINNACLE_LOGIN")
         self._password = password or os.environ.get("PS3838_PASSWORD") or os.environ.get("PINNACLE_PASSWORD")
@@ -66,7 +68,7 @@ class PinnacleClient:
         env_base_url = os.environ.get("PS3838_API_BASE_URL") or os.environ.get("PINNACLE_API_BASE_URL")
         resolved_base_url = api_base_url or env_base_url or DEFAULT_API_BASE_URL
         self._base_url = resolved_base_url.rstrip("/")
-
+        # prepare session and headers
         token = base64.b64encode(f"{self._login}:{self._password}".encode("utf-8"))
         self._headers = {
             "Authorization": f"Basic {token.decode('utf-8')}",
@@ -76,6 +78,8 @@ class PinnacleClient:
 
         self._session = session or requests.Session()
         self._session.headers.update(self._headers)
+        # init v4 subclient
+        self.v4 = V4PinnacleClient(self)
 
     # ------------------------------------------------------------------ #
     # Core request helpers
