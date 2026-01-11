@@ -88,7 +88,21 @@ odds = client.get_odds()
 
 Using fixtures and odds, find events according to the method interfaces and [official Pinnacle API Response schemas](https://ps3838api.github.io/docs/#tag/Odds/operation/Odds_Straight_V3_Get)
 
-> note: in a future version the package will include `magic_find_event` function which would make finding events more 
+### V4 API Endpoints
+
+For enhanced odds responses with alternative team total lines, use the V4 client:
+
+```python
+# Get V4 odds with array-based team totals
+v4_odds = client.v4.get_odds(sport_id=1)
+
+# Get V4 parlay odds
+v4_parlay_odds = client.v4.get_parlay_odds(sport_id=1)
+```
+
+V4 endpoints provide the same parameters as V3 but return enhanced response structures where team totals are arrays, allowing multiple alternative lines per team.
+
+> note: in a future version the package will include `magic_find_event` function which would make finding events more
 straightforward 
 
 ## 💸 Place a Bet
