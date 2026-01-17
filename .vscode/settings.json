@@ -1,5 +1,7 @@
 {
   "python.analysis.typeCheckingMode": "strict",
   "jupyter.notebookFileRoot": "${workspaceFolder}",
-  "python.envFile": "${workspaceFolder}/.env"
+  "python.envFile": "${workspaceFolder}/.env",
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.preferredDarkColorTheme": "Monokai"
 }
