@@ -24,7 +24,7 @@ with open(ROOT_DIR / "out/matched_leagues.json") as file:
     MATCHED_LEAGUES: Final[list[MatchedLeague]] = json.load(file)
 
 with open(ROOT_DIR / "out/ps3838_leagues.json") as file:
-    ALL_LEAGUES: Final[list[ps.LeagueV3]] = json.load(file)['leagues']
+    ALL_LEAGUES: Final[list[ps.LeagueV3]] = json.load(file)
 
 
 def match_league(

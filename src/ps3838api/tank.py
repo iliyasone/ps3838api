@@ -16,6 +16,7 @@ from those files.
 from dataclasses import dataclass, field
 import datetime
 import json
+from pathlib import Path
 from time import time
 
 import ps3838api.api as ps
@@ -74,7 +75,7 @@ class FixtureTank:
         kind = "snapshot" if snapshot else "delta"
         fn = RESPONSES_DIR / f"fixtures_{kind}_{int(time())}.json"
         with open(fn, "w") as f:
-            json.dump(resp, f, indent=4)
+            json.dump(response_data, f, indent=4)
 
     # ──────────────────────────────────────────────────────────────────────
     # Public API
