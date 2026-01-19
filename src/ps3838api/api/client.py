@@ -8,7 +8,7 @@ encapsulating session management, credentials, and error handling.
 import base64
 import os
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Any, Literal, cast, overload
 
 import requests
@@ -456,8 +456,6 @@ class PinnacleClient:
             raise ValueError("fromDate and toDate are required when betlist is submitted")
         if to_date <= from_date:
             raise ValueError("toDate must be exclusive and greater than fromDate")
-        if from_date < datetime.now(timezone.utc) - timedelta(days=30):
-            raise ValueError("fromDate cannot be more than 30 days in the past")
         if not (1 <= page_size <= 1000):
             raise ValueError("pageSize must be between 1 and 1000")
         if from_record < 0:

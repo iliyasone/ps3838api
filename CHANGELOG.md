@@ -1,3 +1,7 @@
+# Version 1.2.0 - Fixed `get_bets`
+
+* Old bets (more than 30 days in the past) can be retrieved
+
 # Version 1.1.0 - V4 API Support
 
 ### Added
