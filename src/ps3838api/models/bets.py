@@ -95,6 +95,12 @@ class CancellationReason(TypedDict):
     details: list[CancellationDetails]
 
 
+class RejectedBet(TypedDict):
+    uniqueRequestId: str
+    betStatus: Literal["NOT_ACCEPTED"]
+    resultingUnit: NotRequired[str | None]
+
+
 class StraightBet(TypedDict):
     betId: int
     wagerNumber: int
@@ -243,7 +249,7 @@ class BetsResponse(TypedDict):
     pageSize: int
     fromRecord: int
     toRecord: int
-    straightBets: NotRequired[list[StraightBetV3]]
+    straightBets: NotRequired[list[StraightBetV3 | RejectedBet]]
     parlayBets: NotRequired[list[ParlayBetV2]]
     teaserBets: NotRequired[list[TeaserBet]]
     specialBets: NotRequired[list[SpecialBetV3]]
