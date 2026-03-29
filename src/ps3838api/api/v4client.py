@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from ps3838api.models.bets import OddsFormat
 from ps3838api.models.odds import OddsResponseV4
@@ -63,7 +63,7 @@ class V4PinnacleClient:
         if to_currency_code is not None:
             params["toCurrencyCode"] = to_currency_code
 
-        return cast(OddsResponseV4, self._client._get(endpoint, params))  # pyright: ignore[reportPrivateUsage]
+        return self._client._cast(OddsResponseV4, self._client._get(endpoint, params))  # pyright: ignore[reportPrivateUsage]
 
     def get_parlay_odds(
         self,
@@ -104,4 +104,4 @@ class V4PinnacleClient:
         if event_ids:
             params["eventIds"] = ",".join(map(str, event_ids))
 
-        return cast(OddsResponseV4, self._client._get(endpoint, params))  # pyright: ignore[reportPrivateUsage]
+        return self._client._cast(OddsResponseV4, self._client._get(endpoint, params))  # pyright: ignore[reportPrivateUsage]

@@ -9,9 +9,10 @@ import base64
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Literal, cast, overload
+from typing import Any, Literal, TypeVar, overload
 
 import requests
+from pydantic import TypeAdapter
 from requests import Response, Session
 
 from ps3838api.api.v4client import V4PinnacleClient
@@ -40,6 +41,7 @@ from ps3838api.models.odds import OddsResponse
 from ps3838api.models.sports import BASEBALL_SPORT_ID, SOCCER_SPORT_ID, Sport
 
 DEFAULT_API_BASE_URL = "https://api.ps3838.com"
+ResponseType = TypeVar("ResponseType")
 
 
 class PinnacleClient:
@@ -78,6 +80,7 @@ class PinnacleClient:
 
         self._session = session or requests.Session()
         self._session.headers.update(self._headers)
+        self._type_adapters: dict[object, TypeAdapter[Any]] = {}
         # init v4 subclient
         self.v4 = V4PinnacleClient(self)
 
@@ -135,20 +138,27 @@ class PinnacleClient:
     def _post(self, endpoint: str, body: dict[str, Any]) -> Any:
         return self._request("POST", endpoint, body=body)
 
+    def _cast(self, response_type: type[ResponseType], data: Any) -> ResponseType:
+        adapter = self._type_adapters.get(response_type)
+        if adapter is None:
+            adapter = TypeAdapter(response_type)
+            self._type_adapters[response_type] = adapter
+        return adapter.validate_python(data, extra="allow")
+
     # ------------------------------------------------------------------ #
     # API endpoints
     # ------------------------------------------------------------------ #
     def get_client_balance(self) -> BalanceData:
         endpoint = "/v1/client/balance"
         data = self._get(endpoint)
-        return cast(BalanceData, data)
+        return self._cast(BalanceData, data)
 
     def get_periods(self, sport_id: int | None = None) -> list[PeriodData]:
         resolved_sport_id = sport_id if sport_id is not None else self.default_sport
         endpoint = "/v1/periods"
         response = self._get(endpoint, params={"sportId": str(resolved_sport_id)})
         periods_data = response.get("periods", [])
-        return cast(list[PeriodData], periods_data)
+        return self._cast(list[PeriodData], periods_data)
 
     def get_sports(self) -> Any:
         endpoint = "/v3/sports"
@@ -159,7 +169,7 @@ class PinnacleClient:
         endpoint = "/v3/leagues"
         data = self._get(endpoint, params={"sportId": resolved_sport_id})
         leagues_data = data.get("leagues", [])
-        return cast(list[LeagueV3], leagues_data)
+        return self._cast(list[LeagueV3], leagues_data)
 
     def get_fixtures(
         self,
@@ -185,7 +195,7 @@ class PinnacleClient:
         if event_ids:
             params["eventIds"] = ",".join(map(str, event_ids))
 
-        return cast(FixturesResponse, self._get(endpoint, params))
+        return self._cast(FixturesResponse, self._get(endpoint, params))
 
     def get_odds(
         self,
@@ -214,7 +224,7 @@ class PinnacleClient:
         if event_ids:
             params["eventIds"] = ",".join(map(str, event_ids))
 
-        return cast(OddsResponse, self._get(endpoint, params))
+        return self._cast(OddsResponse, self._get(endpoint, params))
 
     def get_special_fixtures(
         self,
@@ -261,7 +271,7 @@ class PinnacleClient:
         if side:
             params["side"] = side
 
-        return cast(LineResponse, self._get(endpoint, params))
+        return self._cast(LineResponse, self._get(endpoint, params))
 
     def place_straight_bet(
         self,
@@ -319,7 +329,7 @@ class PinnacleClient:
 
         endpoint = "/v2/bets/place"
         data = self._post(endpoint, params)
-        return cast(PlaceStraightBetResponse, data)
+        return self._cast(PlaceStraightBetResponse, data)
 
     @overload
     def get_bets(
@@ -440,7 +450,7 @@ class PinnacleClient:
             if len(unique_request_ids) > 10:
                 raise ValueError("uniqueRequestIds max is 10")
             params["uniqueRequestIds"] = ",".join(unique_request_ids)
-            return cast("BetsResponse", self._get(endpoint, params))
+            return self._cast(BetsResponse, self._get(endpoint, params))
 
         if bet_ids is not None:
             if not bet_ids:
@@ -448,7 +458,7 @@ class PinnacleClient:
             if len(bet_ids) > 100:
                 raise ValueError("betIds max is 100")
             params["betIds"] = ",".join(map(str, bet_ids))
-            return cast("BetsResponse", self._get(endpoint, params))
+            return self._cast(BetsResponse, self._get(endpoint, params))
 
         if betlist is None:
             raise ValueError("betlist is required when betIds and uniqueRequestIds are not provided")
@@ -473,11 +483,11 @@ class PinnacleClient:
         if bet_type:
             params["betType"] = ",".join(bet_type)
 
-        return cast("BetsResponse", self._get(endpoint, params))
+        return self._cast(BetsResponse, self._get(endpoint, params))
 
     def get_betting_status(self) -> BettingStatusResponse:
         endpoint = "/v1/bets/betting-status"
-        return cast(BettingStatusResponse, self._get(endpoint, {}))
+        return self._cast(BettingStatusResponse, self._get(endpoint, {}))
 
     def export_my_bets(
         self,
