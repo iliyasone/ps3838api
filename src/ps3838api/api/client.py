@@ -129,7 +129,16 @@ class PinnacleClient:
         body: dict[str, Any] | None = None,
     ) -> Any:
         url = f"{self._base_url}{endpoint}"
-        response = self._session.request(method, url, params=params, json=body)
+        try:
+            response = self._session.request(method, url, params=params, json=body)
+        except requests.exceptions.ConnectionError:
+            if method != "GET":
+                raise
+            # Notebook kernels can keep an idle pooled socket around long enough
+            # for the upstream to reset it. Closing the session forces a new
+            # connection on the retry.
+            self._session.close()
+            response = self._session.request(method, url, params=params, json=body)
         return self._handle_response(response)
 
     def _get(self, endpoint: str, params: dict[str, Any] | None = None) -> Any:
@@ -516,7 +525,11 @@ class PinnacleClient:
             "timezone": timezone,
         }
 
-        response = self._session.get(url, headers=self._headers, params=params)
+        try:
+            response = self._session.get(url, headers=self._headers, params=params)
+        except requests.exceptions.ConnectionError:
+            self._session.close()
+            response = self._session.get(url, headers=self._headers, params=params)
         response.raise_for_status()
         return response.content
 
