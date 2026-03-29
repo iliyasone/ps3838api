@@ -1,5 +1,17 @@
 # models/fixtures.py
+from datetime import datetime
+from enum import IntEnum
 from typing import Required, TypedDict
+
+
+class LiveStatus(IntEnum):
+    NO_LIVE_BETTING = 0
+    """No live betting will be offered on this event"""
+
+    LIVE_BETTING_EVENT = 1
+    """Live betting event"""
+    LIVE_WILL_BE_OFERED = 2
+    """Live betting will be offered on this event"""
 
 
 class FixtureV3(TypedDict, total=False):
@@ -14,11 +26,11 @@ class FixtureV3(TypedDict, total=False):
 
     id: Required[int]
     parentId: int
-    starts: str  # date-time in UTC
+    starts: datetime  # date-time in UTC
     home: Required[str]
     away: Required[str]
     rotNum: str  # Will be removed in future; see docs
-    liveStatus: Required[int]
+    liveStatus: Required[LiveStatus]
     homePitcher: str  # Baseball only
     awayPitcher: str  # Baseball only
     status: str  # "O", "H", or "I" (deprecated)
