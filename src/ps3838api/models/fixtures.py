@@ -10,35 +10,82 @@ class LiveStatus(IntEnum):
 
     LIVE_BETTING_EVENT = 1
     """Live betting event"""
-    LIVE_WILL_BE_OFERED = 2
+
+    LIVE_WILL_BE_OFFERED = 2
     """Live betting will be offered on this event"""
+
+
+class BetAcceptanceType(IntEnum):
+    NOT_APPLICABLE = 0
+    """No bet acceptance type restriction applies"""
+
+    DANGER_ZONE = 1
+    """Soccer live event is in the danger zone"""
+
+    LIVE_DELAY = 2
+    """Soccer live event is subject to live delay"""
+
+    BOTH = 3
+    """Both danger zone and live delay apply"""
+
+
+class ParlayRestriction(IntEnum):
+    ALLOWED = 0
+    """Allowed to parlay without restrictions"""
+
+    NOT_ALLOWED = 1
+    """Not allowed to parlay this event"""
+
+    RESTRICTED = 2
+    """Allowed to parlay, but only one leg from the same event is allowed"""
 
 
 class FixtureV3(TypedDict, total=False):
     """
-    Represents a single fixture within the API response.
-
-    - liveStatus: 0=no live, 1=live event, 2=will be offered live
-    - status: Deprecated; check period status in /odds
-    - betAcceptanceType: 0=none, 1=danger zone, 2=live delay, 3=both
-    - parlayRestriction: 0=full parlay allowed, 1=not allowed, 2=partial
+    Represents a single fixture returned by `GET /v3/fixtures`.
     """
 
     id: Required[int]
+    """Event id."""
+
     parentId: int
-    starts: datetime  # date-time in UTC
+    """Parent event id when the event is linked to another event."""
+
+    starts: Required[datetime]
+    """Event start time in UTC."""
+
     home: Required[str]
+    """Home team name."""
+
     away: Required[str]
-    rotNum: str  # Will be removed in future; see docs
+    """Away team name."""
+
+    rotNum: str
+    """Rotation number. Scheduled for removal in a future API version."""
+
     liveStatus: Required[LiveStatus]
-    homePitcher: str  # Baseball only
-    awayPitcher: str  # Baseball only
-    status: str  # "O", "H", or "I" (deprecated)
-    betAcceptanceType: int
-    parlayRestriction: int
+    """Live availability status for the event."""
+
+    homePitcher: str
+    """Home team pitcher. Present only for baseball."""
+
+    awayPitcher: str
+    """Away team pitcher. Present only for baseball."""
+
+    betAcceptanceType: BetAcceptanceType
+    """Soccer live event bet acceptance type for the current customer."""
+
+    parlayRestriction: ParlayRestriction
+    """Parlay availability and restriction level for the event."""
+
     altTeaser: bool
-    resultingUnit: Required[str]  # e.g. "corners", "bookings"
-    version: int  # fixture version changes with any update
+    """Whether the event offers alternative teaser points."""
+
+    resultingUnit: str
+    """Unit used for resulting the event, for example `Corners` or `Bookings`."""
+
+    version: int
+    """Fixture version. Increments whenever the fixture changes."""
 
 
 class FixturesLeagueV3(TypedDict):
