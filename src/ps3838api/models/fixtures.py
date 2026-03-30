@@ -1,7 +1,7 @@
 # models/fixtures.py
 from datetime import datetime
 from enum import IntEnum
-from typing import Required, TypedDict
+from typing import Literal, Required, TypedDict
 
 
 class LiveStatus(IntEnum):
@@ -40,6 +40,9 @@ class ParlayRestriction(IntEnum):
     """Allowed to parlay, but only one leg from the same event is allowed"""
 
 
+type ResultingUnit = Literal["Regular", "Corners", "Bookings"] | str
+
+
 class FixtureV3(TypedDict, total=False):
     """
     Represents a single fixture returned by `GET /v3/fixtures`.
@@ -49,7 +52,12 @@ class FixtureV3(TypedDict, total=False):
     """Event id."""
 
     parentId: int
-    """Parent event id when the event is linked to another event."""
+    """Parent event id when the event is linked to another event.
+
+    For a live `Regular` fixture, this points to the prematch version of the
+    same match. For `Corners` and `Bookings`, this points to the main parent
+    event.
+    """
 
     starts: Required[datetime]
     """Event start time in UTC."""
@@ -81,8 +89,11 @@ class FixtureV3(TypedDict, total=False):
     altTeaser: bool
     """Whether the event offers alternative teaser points."""
 
-    resultingUnit: str
-    """Unit used for resulting the event, for example `Corners` or `Bookings`."""
+    resultingUnit: Required[ResultingUnit]
+    """Unit used for resulting the event.
+
+    `Regular` is the main match event. `Corners` and `Bookings` are subevents.
+    """
 
     version: int
     """Fixture version. Increments whenever the fixture changes."""

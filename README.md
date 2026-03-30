@@ -77,16 +77,24 @@ Expected output:
 }
 ```
 
-## 🎯 Retrieve Events and Fixtures Place Bet
+## 🎯 Retrieve Fixtures and Place Bets
 
 Find and use events with ease:
 
 ```python
+from ps3838api.matching import magic_find_event
+
 fixtures = client.get_fixtures()
 odds = client.get_odds()
+
+event = magic_find_event("PREMATCH", "England - Premier League", "Liverpool", "Arsenal", fixtures)
 ```
 
 Using fixtures and odds, find events according to the method interfaces and [official Pinnacle API Response schemas](https://ps3838api.github.io/docs/#tag/Odds/operation/Odds_Straight_V3_Get)
+
+`magic_find_event` returns the matching `FixtureV3`.
+Pinnacle exposes separate prematch and live events, so `live_status` is required and you must explicitly choose which one you want.
+Use `resulting_unit` for `Corners`, `Bookings`, and other resulting units from the API, for example `magic_find_event("PREMATCH", league, home, away, fixtures, resulting_unit="Corners")`.
 
 ### V4 API Endpoints
 
@@ -102,9 +110,6 @@ v4_parlay_odds = client.v4.get_parlay_odds(sport_id=1)
 
 V4 endpoints provide the same parameters as V3 but return enhanced response structures where team totals are arrays, allowing multiple alternative lines per team.
 
-> note: in a future version the package will include `magic_find_event` function which would make finding events more
-straightforward 
-
 ## 💸 Place a Bet
 
 Once you have your event and total line, place your bet:
@@ -119,7 +124,7 @@ stake_usdt = 1.0
 
 place_bet_response = client.place_straight_bet(
     stake=stake_usdt,
-    event_id=event['eventId'],
+    event_id=event["id"],
     bet_type='TOTAL_POINTS',
     line_id=total_line.get('lineId', None),
     alt_line_id=total_line.get('altLineId', None),

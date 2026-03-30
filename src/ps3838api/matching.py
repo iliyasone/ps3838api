@@ -1,80 +1,48 @@
-import json
-import warnings
-from typing import Final, Literal
+from typing import Literal, Sequence, TypedDict
 
 from rapidfuzz import fuzz
 
-import ps3838api.api as ps
-from ps3838api import ROOT_MODULE_DIR
-from ps3838api.models.event import (
-    Failure,
-    MatchedLeague,
-    NoSuchEvent,
-    NoSuchLeague,
-    NoSuchLeagueFixtures,
-    NoSuchLeagueMatching,
-    WrongLeague,
-)
-from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse
-from ps3838api.models.tank import EventInfo
+from ps3838api.models.fixtures import FixturesLeagueV3, FixturesResponse, FixtureV3, ResultingUnit
 from ps3838api.utils.ops import normalize_to_set
 
-warnings.warn(
-    f"{__name__} is experimental and its interface is not stable yet.",
-    FutureWarning,
-)
 
-with open(ROOT_MODULE_DIR / "out/matched_leagues.json") as file:
-    MATCHED_LEAGUES: Final[list[MatchedLeague]] = json.load(file)
-
-with open(ROOT_MODULE_DIR / "out/ps3838_leagues.json") as file:
-    ALL_LEAGUES: Final[list[ps.LeagueV3]] = json.load(file)["leagues"]
+class LeagueLike(TypedDict):
+    name: str
 
 
-def match_league(
-    *,
-    league_betsapi: str,
-    leagues_mapping: list[MatchedLeague] = MATCHED_LEAGUES,
-) -> MatchedLeague | NoSuchLeagueMatching | WrongLeague:
-    for league in leagues_mapping:
-        if league["betsapi_league"] == league_betsapi:
-            if league["ps3838_id"]:
-                return league
-            else:
-                return NoSuchLeagueMatching(league_betsapi)
-    return WrongLeague(league_betsapi)
-
-
-def find_league_by_name(league: str, leagues: list[ps.LeagueV3] = ALL_LEAGUES) -> ps.LeagueV3 | NoSuchLeague:
+def find_league_by_name[L: LeagueLike](league: str, leagues: Sequence[L]) -> L:
     normalized = normalize_to_set(league)
     for leagueV3 in leagues:
         if normalize_to_set(leagueV3["name"]) == normalized:
             return leagueV3
-    return NoSuchLeagueMatching(league)
+    raise ValueError("No such league")
 
 
 def find_event_in_league(
-    league_data: FixturesLeagueV3,
-    league: str,
+    leagueV3: FixturesLeagueV3,
     home: str,
     away: str,
-    live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH",
-) -> EventInfo | NoSuchEvent:
+    resulting_unit: ResultingUnit = "Regular",
+    live_status: Literal["PREMATCH", "LIVE"] | None = None,
+) -> FixtureV3:
     """
-    If live_status is "LIVE", search only for events with a parentId.
-    This does not necessarily mean the event is live — it could also be a corners subevent.
+    Scan `leagueV3["events"]` for the best fuzzy match to `home` and `away`.
 
-    If live_status is "PREMATCH", search only for events without a parentId.
-    Some prematch events (e.g. corners leagues) will be skipped.
+    Pinnacle exposes separate prematch and live events, so `live_status`
+    controls which kind of event is searched.
 
-    Scans `league_data["events"]` for the best fuzzy match to `home` and `away`.
-    Returns the matching event with the highest sum of match scores, as long as
-    that sum >= 75 (which is 37.5% of the max possible 200).
-    Otherwise, returns NoSuchEvent.
+    `resulting_unit` controls which event type is searched, for example
+    `Regular`, `Corners`, or `Bookings`.
+
+    Returns the matching `FixtureV3` with the highest sum of match scores, as
+    long as that sum is at least 75. Raises `ValueError` if no such event is
+    found.
     """
     best_event = None
     best_sum_score = 0
-    for event in league_data["events"]:
+    for event in leagueV3["events"]:
+        if event["resultingUnit"] != resulting_unit:
+            continue
         match (live_status, "parentId" in event):
             case None, _:
                 pass
@@ -96,46 +64,31 @@ def find_event_in_league(
     # If the best event's combined fuzzy match is < 37.5% of the total possible 200,
     # treat it as no match:
     if best_event is None or best_sum_score < 75:
-        return NoSuchEvent(league, home, away)
-    return {"eventId": best_event["id"], "leagueId": league_data["id"]}
+        raise ValueError("No such event")
+    return best_event
 
 
 def magic_find_event(
-    fixtures: FixturesResponse,
+    live_status: Literal["PREMATCH", "LIVE"],
     league: str,
     home: str,
     away: str,
-    live_status: Literal["PREMATCH", "LIVE"] | None = "PREMATCH",
-) -> EventInfo | Failure:
+    all_fixtures: FixturesResponse,
+    *,
+    resulting_unit: ResultingUnit = "Regular",
+) -> FixtureV3:
     """
-    1. Tries to find league by normalizng names;
-    2. If don't, search for a league matching
-    3. Then `find_event_in_league`
+    Find a league in `all_fixtures` by normalized name and then locate the best
+    matching event inside that league.
 
-    If live_status is "LIVE", search only for events with a parentId.
-    This does not necessarily mean the event is live — it could also be a corners subevent.
+    Pinnacle exposes separate prematch and live events, so `live_status` is
+    required and must be chosen explicitly.
 
-    If live_status is "PREMATCH", search only for events without a parentId.
-    Some prematch events (e.g. corners leagues) will be skipped.
+    Use `resulting_unit` for `Regular`, `Corners`, `Bookings`, and other
+    resulting units returned by the API.
 
-    If live_status is None, search for any.
-
+    Raises `ValueError` if the league or event cannot be found.
     """
 
-    leagueV3 = find_league_by_name(league)
-    if isinstance(leagueV3, NoSuchLeague):
-        match match_league(league_betsapi=league):
-            case {"ps3838_id": int()} as value:
-                league_id: int = value["ps3838_id"]  # type: ignore
-            case _:
-                return NoSuchLeagueMatching(league)
-    else:
-        league_id = leagueV3["id"]
-
-    for leagueV3 in fixtures["league"]:
-        if leagueV3["id"] == league_id:
-            break
-    else:
-        return NoSuchLeagueFixtures(league)
-
-    return find_event_in_league(leagueV3, league, home, away, live_status)
+    leagueV3 = find_league_by_name(league, all_fixtures["league"])
+    return find_event_in_league(leagueV3, home, away, resulting_unit, live_status)
